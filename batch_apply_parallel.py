@@ -238,6 +238,13 @@ def main():
                 if str(old_pid) in out and "python" in out.lower():
                     print(f"[Parallel Runner] Another runner (PID {old_pid}) is currently running. Exiting.")
                     return
+            else:
+                try:
+                    os.kill(old_pid, 0)
+                    print(f"[Parallel Runner] Another runner (PID {old_pid}) is currently running. Exiting.")
+                    return
+                except OSError:
+                    pass
         except Exception:
             pass
     lock_file.write_text(str(os.getpid()))
