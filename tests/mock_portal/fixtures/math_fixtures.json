@@ -1,0 +1,275 @@
+{
+  "domain": "mathematics",
+  "version": "1.0.0",
+  "fixtures": [
+    {
+      "question_id": "math-work-pipes-01",
+      "category": "mathematics",
+      "question_type": "short_text",
+      "difficulty": "medium",
+      "estimated_time_seconds": 180,
+      "prompt": "Pipe A can fill an empty reservoir in 6 hours, and Pipe B can fill it in 8 hours. Pipe C can empty the full reservoir in 12 hours. If all three pipes are opened at the same time starting with an empty reservoir, how many hours will it take to fill the reservoir completely? Express your answer as a simplified fraction or decimal.",
+      "input_specifications": {
+        "format": "exact_number_or_fraction",
+        "units": "hours"
+      },
+      "ground_truth_answer": "24/5",
+      "sympy_verification": {
+        "expression": "sp.solve(sp.Eq(t * (sp.Rational(1, 6) + sp.Rational(1, 8) - sp.Rational(1, 12)), 1), t)[0]",
+        "evaluates_to": "24/5",
+        "numeric_approx": 4.8
+      },
+      "ground_truth_payload": {
+        "question_id": "math-work-pipes-01",
+        "selected_option_ids": [],
+        "text_response": "24/5",
+        "code_response": null,
+        "confidence_score": 1.0,
+        "reasoning": "Rate = 1/6 + 1/8 - 1/12 = 4/24 + 3/24 - 2/24 = 5/24 reservoir per hour. Time = 1 / (5/24) = 24/5 hours (4.8 hours).",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "Sum the net rates of filling and emptying: (1/6) + (1/8) - (1/12) = 5/24. The total time required is the reciprocal: 24/5 hours = 4.8 hours.",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "sympy_equivalent",
+        "acceptable_equivalents": ["24/5", "4.8", "4 4/5"],
+        "tolerance": 1e-6
+      }
+    },
+    {
+      "question_id": "math-prob-bayes-disease-01",
+      "category": "mathematics",
+      "question_type": "short_text",
+      "difficulty": "hard",
+      "estimated_time_seconds": 240,
+      "prompt": "A diagnostic screening test for a rare disease has a sensitivity (true positive rate) of 98% and a specificity (true negative rate) of 95%. In the general population, the disease prevalence is 2%. If a randomly selected person tests positive, what is the exact posterior probability that this person actually has the disease? Express your answer as a fully simplified fraction.",
+      "input_specifications": {
+        "format": "simplified_fraction"
+      },
+      "ground_truth_answer": "2/7",
+      "sympy_verification": {
+        "expression": "(sp.Rational(2, 100) * sp.Rational(98, 100)) / (sp.Rational(2, 100) * sp.Rational(98, 100) + sp.Rational(98, 100) * sp.Rational(5, 100))",
+        "evaluates_to": "2/7",
+        "numeric_approx": 0.2857142857142857
+      },
+      "ground_truth_payload": {
+        "question_id": "math-prob-bayes-disease-01",
+        "selected_option_ids": [],
+        "text_response": "2/7",
+        "code_response": null,
+        "confidence_score": 1.0,
+        "reasoning": "P(D|+) = P(+|D)P(D) / [P(+|D)P(D) + P(+|D^c)P(D^c)]. Numerator = 0.98 * 0.02 = 0.0196. Denominator = 0.0196 + (1 - 0.95)*0.98 = 0.0196 + 0.0490 = 0.0686. P(D|+) = 196 / 686 = 2/7.",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "By Bayes' Theorem: P(Disease | +) = (0.02 * 0.98) / [(0.02 * 0.98) + (0.98 * 0.05)] = 0.0196 / 0.0686 = 196/686 = 2/7.",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "sympy_equivalent",
+        "acceptable_equivalents": ["2/7", "0.285714", "98/343", "196/686"],
+        "tolerance": 1e-4
+      }
+    },
+    {
+      "question_id": "math-algebra-linear-system-01",
+      "category": "mathematics",
+      "question_type": "short_text",
+      "difficulty": "medium",
+      "estimated_time_seconds": 180,
+      "prompt": "A software enterprise offers two subscription tiers: Starter and Enterprise. In March, 15 Starter and 4 Enterprise subscriptions generated $8,200 in recurring revenue. In April, 25 Starter and 6 Enterprise subscriptions generated $12,800. What is the monthly subscription price of a single Enterprise plan?",
+      "input_specifications": {
+        "format": "integer",
+        "units": "dollars"
+      },
+      "ground_truth_answer": "1300",
+      "sympy_verification": {
+        "expression": "sp.solve([15*s + 4*e - 8200, 25*s + 6*e - 12800], [s, e])[e]",
+        "evaluates_to": "1300",
+        "numeric_approx": 1300.0
+      },
+      "ground_truth_payload": {
+        "question_id": "math-algebra-linear-system-01",
+        "selected_option_ids": [],
+        "text_response": "1300",
+        "code_response": null,
+        "confidence_score": 1.0,
+        "reasoning": "Solve 15s + 4e = 8200 and 25s + 6e = 12800. Multiply first by 3 (45s + 12e = 24600) and second by 2 (50s + 12e = 25600). Subtracting gives 5s = 1000 => s = 200. Then 4e = 8200 - 3000 = 5200 => e = 1300.",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "Solving the 2x2 system of linear equations yields Starter = $200 and Enterprise = $1300.",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "sympy_equivalent",
+        "acceptable_equivalents": ["1300", "1300.0", "$1300"],
+        "tolerance": 0.0
+      }
+    },
+    {
+      "question_id": "math-word-speed-distance-01",
+      "category": "mathematics",
+      "question_type": "short_text",
+      "difficulty": "easy",
+      "estimated_time_seconds": 150,
+      "prompt": "Two delivery vans leave distribution centers 330 miles apart at 9:00 AM, driving toward each other along a straight interstate. Van A travels at a constant 55 mph and Van B travels at a constant 65 mph. Exactly how many hours after departure will they meet?",
+      "input_specifications": {
+        "format": "decimal_or_fraction",
+        "units": "hours"
+      },
+      "ground_truth_answer": "11/4",
+      "sympy_verification": {
+        "expression": "sp.Rational(330, 55 + 65)",
+        "evaluates_to": "11/4",
+        "numeric_approx": 2.75
+      },
+      "ground_truth_payload": {
+        "question_id": "math-word-speed-distance-01",
+        "selected_option_ids": [],
+        "text_response": "2.75",
+        "code_response": null,
+        "confidence_score": 1.0,
+        "reasoning": "Relative speed = 55 + 65 = 120 mph. Time = 330 / 120 = 11/4 = 2.75 hours (2 hours 45 minutes).",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "Relative speed is the sum of both speeds (120 mph). Total time = distance / relative speed = 330 / 120 = 2.75 hours (11/4 hours).",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "sympy_equivalent",
+        "acceptable_equivalents": ["2.75", "11/4", "2 3/4"],
+        "tolerance": 1e-6
+      }
+    },
+    {
+      "question_id": "math-prob-dice-conditional-01",
+      "category": "mathematics",
+      "question_type": "short_text",
+      "difficulty": "medium",
+      "estimated_time_seconds": 180,
+      "prompt": "Two fair six-sided dice are rolled simultaneously. What is the conditional probability that the sum of the numbers showing is at least 9, given that at least one of the dice shows a 5? Express your answer as a simplified fraction.",
+      "input_specifications": {
+        "format": "simplified_fraction"
+      },
+      "ground_truth_answer": "5/11",
+      "sympy_verification": {
+        "expression": "sp.Rational(5, 11)",
+        "evaluates_to": "5/11",
+        "numeric_approx": 0.45454545454545453
+      },
+      "ground_truth_payload": {
+        "question_id": "math-prob-dice-conditional-01",
+        "selected_option_ids": [],
+        "text_response": "5/11",
+        "code_response": null,
+        "confidence_score": 1.0,
+        "reasoning": "Sample space of rolling at least one 5 contains 11 outcomes: (5,1)-(5,6) and (1,5)-(6,5). Out of these, sums >= 9 are (5,4)=9, (4,5)=9, (5,5)=10, (5,6)=11, (6,5)=11 (5 outcomes). P = 5/11.",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "There are 11 outcomes where at least one die is 5. Exactly 5 of those outcomes produce a sum of 9 or greater (4+5, 5+4, 5+5, 5+6, 6+5). Probability = 5/11.",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "sympy_equivalent",
+        "acceptable_equivalents": ["5/11", "0.454545"],
+        "tolerance": 1e-4
+      }
+    },
+    {
+      "question_id": "math-opt-quadratic-profit-01",
+      "category": "mathematics",
+      "question_type": "short_text",
+      "difficulty": "medium",
+      "estimated_time_seconds": 180,
+      "prompt": "A cloud micro-service platform models its monthly net profit in dollars by the function P(x) = -5x^2 + 180x - 620, where x represents the number of servers allocated (in hundreds). What value of x maximizes the monthly net profit?",
+      "input_specifications": {
+        "format": "integer"
+      },
+      "ground_truth_answer": "18",
+      "sympy_verification": {
+        "expression": "sp.solve(sp.diff(-5*x**2 + 180*x - 620, x), x)[0]",
+        "evaluates_to": "18",
+        "numeric_approx": 18.0
+      },
+      "ground_truth_payload": {
+        "question_id": "math-opt-quadratic-profit-01",
+        "selected_option_ids": [],
+        "text_response": "18",
+        "code_response": null,
+        "confidence_score": 1.0,
+        "reasoning": "Vertex of downward parabola occurs at x = -b / (2a) = -180 / (2 * -5) = 18.",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "Taking the derivative dP/dx = -10x + 180 and setting it to 0 yields x = 18. Since the second derivative is -10 < 0, this is a maximum.",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "sympy_equivalent",
+        "acceptable_equivalents": ["18", "18.0"],
+        "tolerance": 0.0
+      }
+    },
+    {
+      "question_id": "math-mixture-solution-01",
+      "category": "mathematics",
+      "question_type": "short_text",
+      "difficulty": "medium",
+      "estimated_time_seconds": 180,
+      "prompt": "A chemistry laboratory has an unlimited supply of 20% saline solution and 60% saline solution. How many liters of the 60% solution must be mixed with the 20% solution to produce exactly 80 liters of a 45% saline solution?",
+      "input_specifications": {
+        "format": "integer_or_decimal",
+        "units": "liters"
+      },
+      "ground_truth_answer": "50",
+      "sympy_verification": {
+        "expression": "sp.solve(sp.Eq(sp.Rational(20, 100)*(80 - y) + sp.Rational(60, 100)*y, sp.Rational(45, 100)*80), y)[0]",
+        "evaluates_to": "50",
+        "numeric_approx": 50.0
+      },
+      "ground_truth_payload": {
+        "question_id": "math-mixture-solution-01",
+        "selected_option_ids": [],
+        "text_response": "50",
+        "code_response": null,
+        "confidence_score": 1.0,
+        "reasoning": "0.60*y + 0.20*(80 - y) = 0.45*80 => 0.40*y = 36 - 16 = 20 => y = 50 liters.",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "Setting up the conservation of salt: 0.60y + 0.20(80 - y) = 0.45(80) gives 0.40y = 20, so y = 50 liters.",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "sympy_equivalent",
+        "acceptable_equivalents": ["50", "50.0", "50 liters"],
+        "tolerance": 1e-6
+      }
+    },
+    {
+      "question_id": "math-algebra-exponential-decay-01",
+      "category": "mathematics",
+      "question_type": "short_text",
+      "difficulty": "easy",
+      "estimated_time_seconds": 120,
+      "prompt": "A radioactive isotope decays according to the formula N(t) = N0 * (1/2)^(t / 14), where t is the elapsed time in days and N0 is the initial mass. If a sample initially contains 160 grams of the isotope, how many grams remain after 42 days?",
+      "input_specifications": {
+        "format": "integer_or_decimal",
+        "units": "grams"
+      },
+      "ground_truth_answer": "20",
+      "sympy_verification": {
+        "expression": "160 * (sp.Rational(1, 2)) ** (sp.Rational(42, 14))",
+        "evaluates_to": "20",
+        "numeric_approx": 20.0
+      },
+      "ground_truth_payload": {
+        "question_id": "math-algebra-exponential-decay-01",
+        "selected_option_ids": [],
+        "text_response": "20",
+        "code_response": null,
+        "confidence_score": 1.0,
+        "reasoning": "Elapsed half-lives = 42 / 14 = 3. Remaining mass = 160 * (1/2)^3 = 160 / 8 = 20 grams.",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "42 days is exactly 3 half-lives (42 / 14 = 3). Dividing 160 by 2 three times: 160 -> 80 -> 40 -> 20 grams.",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "sympy_equivalent",
+        "acceptable_equivalents": ["20", "20.0", "20 grams"],
+        "tolerance": 0.0
+      }
+    }
+  ]
+}

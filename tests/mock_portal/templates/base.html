@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ page_title | default("Mock Assessment Portal") }}</title>
+  <link rel="stylesheet" href="/static/css/mock_portal.css">
+</head>
+<body class="platform-{{ platform | default('default') }}"
+      data-session-id="{{ session_id | default('') }}"
+      data-platform="{{ platform | default('') }}"
+      data-strict-proctoring="{{ 'true' if strict_proctoring else 'false' }}">
+
+  <header id="portal-header" data-testid="portal-header">
+    <div class="header-inner">
+      <div class="brand-zone">
+        <h1 id="portal-title" data-testid="platform-title" data-platform="{{ platform | default('hub') }}">
+          {{ platform_title | default("Mock Assessment Portal") }}
+        </h1>
+        {% if session_id %}
+        <div id="session-badge" data-testid="session-badge" data-session-id="{{ session_id }}">
+          Session: {{ session_id }}
+        </div>
+        {% endif %}
+      </div>
+
+      {% if time_limit is defined and time_limit is not none %}
+      <div id="assessment-timer" class="timer-container" data-testid="timer"
+           data-seconds-remaining="{{ time_limit }}" data-total-seconds="{{ time_limit }}">
+        <span class="timer-icon">⏱</span>
+        <span id="timer-display" data-testid="timer-display" aria-live="polite">--:--</span>
+      </div>
+      {% endif %}
+
+      <div id="proctor-badge" class="proctor-badge" data-testid="proctor-violations"
+           data-violation-count="0" style="display: none;">
+        Tab Switches: 0
+      </div>
+    </div>
+  </header>
+
+  <!-- Anti-Proctoring Modal Overlay -->
+  <div id="proctor-modal" class="modal-overlay" data-testid="proctor-modal" style="display: none;" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-icon">⚠️</div>
+      <h3>Proctoring Alert</h3>
+      <p>Navigating away from the assessment window or switching tabs is recorded and flagged.</p>
+      <button type="button" id="btn-dismiss-proctor-warning" class="btn btn-warning">Return to Test</button>
+    </div>
+  </div>
+
+  <main class="portal-main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="portal-footer">
+    <div class="footer-inner">
+      <span>Mock Assessment Portal &bull; Isolated Offline Test Environment</span>
+      <a href="/hub" class="hub-link">Portal Hub</a>
+    </div>
+  </footer>
+
+  <script src="/static/js/portal.js"></script>
+</body>
+</html>

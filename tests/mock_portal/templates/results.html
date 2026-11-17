@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="results-container" data-testid="results-container">
+  <div id="results-card" class="results-card" data-testid="results-card">
+    <div class="results-header">
+      <div class="status-badge status-{{ result.status | lower }}" id="assessment-status"
+           data-testid="assessment-status" data-status="{{ result.status }}">
+        {{ result.status }}
+      </div>
+      <h2>Assessment Outcome</h2>
+      <p class="platform-subtitle">{{ result.platform | upper }} Evaluation Verified</p>
+    </div>
+
+    <div class="score-display-box">
+      <div class="score-circle">
+        <span id="final-score" class="score-number" data-testid="final-score" data-score="{{ result.score }}">
+          {{ result.score }}%
+        </span>
+        <span class="score-label">Overall Score</span>
+      </div>
+
+      <div class="result-metrics">
+        <div class="metric-item">
+          <span class="metric-title">Pass Status:</span>
+          <span class="metric-val {% if result.passed %}pass{% else %}fail{% endif %}">
+            {{ "PASSED" if result.passed else "DID NOT PASS" }}
+          </span>
+        </div>
+        <div class="metric-item">
+          <span class="metric-title">Proctoring Audit:</span>
+          <span id="proctor-status" class="metric-val status-{{ result.proctoring_status | lower }}"
+                data-testid="proctor-status" data-violations="{{ result.details.violations }}">
+            {{ result.proctoring_status }} ({{ result.details.violations }} Violations)
+          </span>
+        </div>
+        <div class="metric-item">
+          <span class="metric-title">Questions Solved:</span>
+          <span class="metric-val">
+            {{ result.details.correct_count }} / {{ result.details.total_questions }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="token-section">
+      <label class="token-label">Cryptographic Verification Token:</label>
+      <div id="verification-token" class="token-badge" data-testid="verification-token"
+           data-token="{{ result.verification_token }}">
+        {{ result.verification_token }}
+      </div>
+      <p class="token-note">Use this token to verify completion deterministically in automated test suites.</p>
+    </div>
+
+    {% if result.details.question_details %}
+    <div class="breakdown-section">
+      <h3>Domain Question Breakdown</h3>
+      <table class="breakdown-table" data-testid="breakdown-table">
+        <thead>
+          <tr>
+            <th>Question ID</th>
+            <th>Domain</th>
+            <th>Type</th>
+            <th>Score</th>
+            <th>Status</th>
+            <th>Feedback</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for q in result.details.question_details %}
+          <tr class="row-{{ 'pass' if q.passed else 'fail' }}">
+            <td><code>{{ q.question_id }}</code></td>
+            <td><span class="category-tag tag-{{ q.category }}">{{ q.category }}</span></td>
+            <td>{{ q.question_type }}</td>
+            <td><strong>{{ q.score }}%</strong></td>
+            <td>
+              <span class="status-pill {{ 'pill-pass' if q.passed else 'pill-fail' }}">
+                {{ "PASS" if q.passed else "FAIL" }}
+              </span>
+            </td>
+            <td class="feedback-cell">{{ q.feedback }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    <div class="results-actions">
+      <a href="/hub" class="btn btn-primary" data-testid="btn-return-hub">Return to Hub</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

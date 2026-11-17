@@ -1,0 +1,315 @@
+{
+  "domain": "behavioral",
+  "version": "1.0.0",
+  "candidate_profile": {
+    "name": "Olatokunbo Ajayi",
+    "institution": "Georgia State University",
+    "degree": "Bachelor of Science in Computer Science",
+    "gpa": "3.84",
+    "primary_skills": ["Python", "Playwright", "Automation Pipelines", "SQL", "Claude API", "Multi-Agent Orchestration"],
+    "key_projects": [
+      "Multi-Agent Job Application Platform (Playwright, Claude API, Gmail IMAP, 460+ rules)",
+      "Delta Air Lines Shift Bidding Automation (50k+ bids, 150+ hours saved, 3k records validated)",
+      "Vantrell AI Investing Platform (GSU Hacklanta, Python decision agents, Rust execution engine)",
+      "The Kalshi Desk (Autonomous event-contract trading, 32 modules, 165 automated unit tests)"
+    ]
+  },
+  "fixtures": [
+    {
+      "question_id": "beh-star-001",
+      "category": "behavioral",
+      "question_type": "essay",
+      "difficulty": "medium",
+      "estimated_time_seconds": 300,
+      "prompt": "Describe a situation where you had to automate or optimize a critical process under ambiguous or evolving requirements. How did you ensure system reliability, and what was the quantifiable impact?",
+      "context": "Enterprise workforce scheduling and frontline operations.",
+      "input_specifications": {
+        "format": "rich_text_essay",
+        "min_words": 150,
+        "max_words": 450,
+        "framework": "STAR"
+      },
+      "ground_truth_answer": {
+        "situation": "While working on scheduling operations for a 20,000-person frontline workforce at Delta Air Lines, station requirements for shift bidding were loosely defined across multiple hub stations with differing local seniority rules and legacy paper workflows.",
+        "task": "My objective was to engineer an automated shift-selection and bid-processing pipeline to replace manual spreadsheet coordination, while ensuring zero bid corruption across 50,000+ employee bids.",
+        "action": "I translated station requirements into standard product specifications and developed an automated Python pipeline. To guarantee reliability, I implemented rigorous data validation checks that screened 3,000+ workflow records, surfacing ~2,500 edge-case exceptions for proactive remediation. I built 6 operational trackers with automated logging to monitor execution readiness and station rollout.",
+        "result": "The automated workflow eliminated over 150 hours of manual frontline coordination, processed over 50,000 employee bids with 100% data integrity, and established the standard operational baseline across multiple airport hub stations."
+      },
+      "ground_truth_payload": {
+        "question_id": "beh-star-001",
+        "selected_option_ids": [],
+        "text_response": "At Delta Air Lines, I led the automation of frontline shift-selection and bid-processing workflows across hub stations for a 20,000-person workforce. Station requirements were highly ambiguous and varied between airports with differing local scheduling rules. My task was to design and deploy an automated pipeline that could process over 50,000 employee shift bids without manual data entry or data loss. I translated fragmented station requirements into unified technical specs and wrote a Python automation engine with pre-submission validation gates. During pre-flight verification, my validation scripts parsed 3,000+ workflow records and flagged ~2,500 exceptions, allowing our team to remediate scheduling conflicts before live execution. I also established 6 tracking dashboards to maintain end-to-end auditability. The automated system successfully processed 50,000+ employee bids, reduced manual administrative coordination by more than 150 hours, and achieved flawless rollout across frontline hub operations.",
+        "code_response": null,
+        "confidence_score": 0.98,
+        "reasoning": "Exemplary STAR structure grounded directly in candidate's Delta Air Lines automation experience with exact metrics (50k+ bids, 150+ hours saved, 3k records validated).",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "High-scoring STAR essay clearly identifying Situation, Task, Action, and Result with quantifiable business metrics, technical rigor, and alignment with candidate invariants.",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "star_evaluation",
+        "criteria": [
+          {"criterion": "Situation Clarity", "weight_percent": 20, "description": "Clearly outlines enterprise context, scale, and ambiguous constraints."},
+          {"criterion": "Task Ownership", "weight_percent": 20, "description": "Defines personal responsibility and engineering objective."},
+          {"criterion": "Action Specificity", "weight_percent": 35, "description": "Explains Python automation, validation logic, exception handling, and tracking."},
+          {"criterion": "Quantified Result", "weight_percent": 25, "description": "Cites concrete metrics (150+ hours saved, 50k+ bids, 3k records)."}
+        ],
+        "keywords_required": ["Delta", "50,000", "150", "Python", "validation", "automation"],
+        "negative_penalties": [
+          {"penalty": -20, "condition": "Missing quantifiable metrics"},
+          {"penalty": -25, "condition": "Passive framing or blaming stakeholders for ambiguity"}
+        ]
+      }
+    },
+    {
+      "question_id": "beh-star-002",
+      "category": "behavioral",
+      "question_type": "essay",
+      "difficulty": "medium",
+      "estimated_time_seconds": 300,
+      "prompt": "Tell me about a time when you experienced a technical disagreement with teammates on architecture or tool selection. How did you resolve it?",
+      "context": "Collaborative hackathon engineering under high time pressure.",
+      "input_specifications": {
+        "format": "rich_text_essay",
+        "min_words": 150,
+        "max_words": 450,
+        "framework": "STAR"
+      },
+      "ground_truth_answer": {
+        "situation": "During the Hacklanta '26 hackathon at Georgia State University, our 4-person team built Vantrell, an AI investing platform for BTC/ETH paper trading. As repo owner, I faced a major architectural dispute: half the team wanted an all-Python monolithic service for rapid prototyping, while the other half advocated for a pure Rust system for performance.",
+        "task": "My responsibility was to resolve the dispute swiftly, prevent team friction, and establish an architecture that balanced rapid AI iteration with strict execution safety.",
+        "action": "I organized a 30-minute structured spike to benchmark both approaches. I demonstrated that while Python was indispensable for rapid LLM agent experimentation, Rust was vastly superior for sub-millisecond execution and risk checks. I proposed a hybrid microservice architecture: Python agents generated trading decisions and communicated via a strict JSON RPC interface to a high-speed Rust layer that handled trade execution, portfolio state, and risk controls.",
+        "result": "Both factions supported the consensus architecture. We delivered the full working trading platform ahead of the hackathon deadline, completed 100+ simulated paper trades with sub-millisecond risk validation, and earned high marks from judges."
+      },
+      "ground_truth_payload": {
+        "question_id": "beh-star-002",
+        "selected_option_ids": [],
+        "text_response": "At the GSU Hacklanta hackathon, I served as repo owner for our 4-person team building Vantrell, an AI crypto trading platform. Our team deadlocked on language selection: two engineers insisted on building everything in Python for development speed, while the other wanted a pure Rust implementation for low-latency safety. I stepped in to de-escalate the debate by reframing the problem around functional requirements rather than personal preference. I conducted a rapid 20-minute benchmark comparing execution speed and development velocity. I then proposed a decoupled boundary: Python agents handle strategy synthesis where rapid prompt engineering and API libraries shine, while a lightweight Rust service enforces risk checks and executes order books. Both team members immediately saw their priorities respected. We implemented the interface via a typed protocol and shipped the project on time, completing over 100 automated paper trades with zero race conditions.",
+        "code_response": null,
+        "confidence_score": 0.98,
+        "reasoning": "Strong behavioral conflict resolution demonstrating technical maturity, objective benchmarking, and consensus building at GSU Hacklanta.",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "Demonstrates conflict resolution via objective empirical benchmarking, architectural boundary decoupling, and collaborative leadership.",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "star_evaluation",
+        "criteria": [
+          {"criterion": "Conflict Context", "weight_percent": 20, "description": "Clearly articulates the two competing technical perspectives."},
+          {"criterion": "De-escalation & Objectivity", "weight_percent": 30, "description": "Uses empirical benchmarks rather than authority to evaluate trade-offs."},
+          {"criterion": "Architectural Solution", "weight_percent": 30, "description": "Decouples Python strategy logic from Rust execution logic."},
+          {"criterion": "Collaborative Outcome", "weight_percent": 20, "description": "Maintains team cohesion and delivers working software on time."}
+        ],
+        "keywords_required": ["Hacklanta", "Rust", "Python", "benchmark", "architecture", "decoupled"],
+        "negative_penalties": [
+          {"penalty": -25, "condition": "Overriding teammates using authority without technical justification"}
+        ]
+      }
+    },
+    {
+      "question_id": "beh-sjt-001",
+      "category": "behavioral",
+      "question_type": "ranking",
+      "difficulty": "medium",
+      "estimated_time_seconds": 180,
+      "prompt": "You are the lead automation engineer on a job application assistant pipeline. Two hours before a scheduled executive milestone demo, an automated test reveals an edge-case bug where assessment links from a secondary job portal fail to parse correctly in 5% of cases. The primary core workflow for standard portals works flawlessly. How should you handle this situation? Rank the following actions from Most Effective (1) to Least Effective (4).",
+      "options": [
+        {
+          "id": "A",
+          "text": "Immediately isolate the bug, add an explicit defensive catch block that flags the secondary portal links as 'Needs Manual Review' rather than crashing, log the exact payload, and proceed with the demo highlighting the primary flow while transparently noting the triage queue."
+        },
+        {
+          "id": "B",
+          "text": "Quietly disable all automated tests for the secondary portal so the test suite shows 100% green during the executive presentation, planning to fix the bug sometime next week."
+        },
+        {
+          "id": "C",
+          "text": "Quickly write a targeted regression test for the 5% failure case, implement a surgical regex/URL unwrap fix, run the full test suite to verify no regressions occurred, and communicate the status to stakeholders prior to the demo."
+        },
+        {
+          "id": "D",
+          "text": "Postpone the entire executive milestone presentation until the edge case can be fully re-architected and stress-tested over the next three business days."
+        }
+      ],
+      "ground_truth_answer": ["C", "A", "D", "B"],
+      "ground_truth_payload": {
+        "question_id": "beh-sjt-001",
+        "selected_option_ids": ["C", "A", "D", "B"],
+        "text_response": null,
+        "code_response": null,
+        "confidence_score": 1.0,
+        "reasoning": "C is most proactive (targeted fix with regression test). A is second best (graceful degradation and honest triage). D is disproportionate (canceling demo for a 5% secondary edge case). B is unacceptable (unethical silencing of failing tests).",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "Action C demonstrates technical excellence, urgency, and test-driven integrity. Action A shows mature risk mitigation and transparency. Action D is an excessive overreaction that damages stakeholder trust. Action B is an egregious breach of engineering ethics and data integrity.",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "rank_correlation",
+        "criteria": [
+          {"criterion": "Pairwise Concordance (Kendall Tau)", "weight_percent": 100, "description": "Score = 100 * (6 - inversions) / 6"}
+        ],
+        "negative_penalties": [
+          {"penalty": -50, "condition": "Ranking option B as first or second"}
+        ]
+      }
+    },
+    {
+      "question_id": "beh-sjt-002",
+      "category": "behavioral",
+      "question_type": "ranking",
+      "difficulty": "medium",
+      "estimated_time_seconds": 180,
+      "prompt": "During sprint execution, a teammate responsible for delivering the email webhook parser is three days behind schedule and hasn't pushed any code updates, which is beginning to block your downstream assessment solver integration. How should you address this? Rank the actions from Most Effective (1) to Least Effective (4).",
+      "options": [
+        {
+          "id": "A",
+          "text": "Escalate the teammate's delay directly to senior management during standup, requesting that their tasks be reassigned to someone more dependable."
+        },
+        {
+          "id": "B",
+          "text": "Reach out directly to the teammate in a 1-on-1 setting to understand their technical blocker, offer to pair on resolving the interface contract, and establish a stub interface so your downstream work can proceed in parallel."
+        },
+        {
+          "id": "C",
+          "text": "Completely rewrite the webhook parser yourself overnight without informing the teammate, and push it directly to main to unblock yourself."
+        },
+        {
+          "id": "D",
+          "text": "Construct a mock/stub contract for the webhook output so your own development remains productive, and raise the integration risk collaboratively during the next daily standup."
+        }
+      ],
+      "ground_truth_answer": ["B", "D", "A", "C"],
+      "ground_truth_payload": {
+        "question_id": "beh-sjt-002",
+        "selected_option_ids": ["B", "D", "A", "C"],
+        "text_response": null,
+        "code_response": null,
+        "confidence_score": 1.0,
+        "reasoning": "B is most collaborative and unblocks both parties. D is pragmatic decoupling. A is premature public escalation. C is rogue behavior that destroys team trust and duplicates work.",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "Action B pairs proactive empathy with pragmatic decoupling. Action D ensures work continuity. Action A damages psychological safety. Action C undermines team ownership and creates maintenance chaos.",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "rank_correlation",
+        "criteria": [
+          {"criterion": "Pairwise Concordance", "weight_percent": 100, "description": "Score = 100 * (6 - inversions) / 6"}
+        ]
+      }
+    },
+    {
+      "question_id": "beh-lik-001",
+      "category": "behavioral",
+      "question_type": "slider",
+      "difficulty": "easy",
+      "estimated_time_seconds": 60,
+      "prompt": "Please indicate your level of agreement: 'I consistently write automated unit and regression tests for my code, even when working under aggressive delivery timelines.'",
+      "options": [
+        {"id": "1", "text": "Strongly Disagree"},
+        {"id": "2", "text": "Disagree"},
+        {"id": "3", "text": "Neutral"},
+        {"id": "4", "text": "Agree"},
+        {"id": "5", "text": "Strongly Agree"}
+      ],
+      "input_specifications": {
+        "scale_min": 1,
+        "scale_max": 5,
+        "step": 1,
+        "trait": "Conscientiousness & Technical Rigor",
+        "trait_polarity": "positive"
+      },
+      "ground_truth_answer": 5,
+      "ground_truth_payload": {
+        "question_id": "beh-lik-001",
+        "selected_option_ids": ["5"],
+        "text_response": "5",
+        "code_response": null,
+        "confidence_score": 1.0,
+        "reasoning": "Candidate maintains high engineering rigor (165 automated tests in Kalshi Desk project). Positive polarity on Conscientiousness.",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "Strong alignment with candidate profile invariant: 165 automated unit tests across 32 modules.",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "exact_match",
+        "acceptable_range": [4, 5]
+      }
+    },
+    {
+      "question_id": "beh-lik-002",
+      "category": "behavioral",
+      "question_type": "slider",
+      "difficulty": "easy",
+      "estimated_time_seconds": 60,
+      "prompt": "Please indicate your level of agreement: 'When an unexpected production issue occurs, I prefer to wait for clear instructions from my manager before taking diagnostic action.'",
+      "options": [
+        {"id": "1", "text": "Strongly Disagree"},
+        {"id": "2", "text": "Disagree"},
+        {"id": "3", "text": "Neutral"},
+        {"id": "4", "text": "Agree"},
+        {"id": "5", "text": "Strongly Agree"}
+      ],
+      "input_specifications": {
+        "scale_min": 1,
+        "scale_max": 5,
+        "step": 1,
+        "trait": "Ownership & Bias for Action",
+        "trait_polarity": "negative"
+      },
+      "ground_truth_answer": 1,
+      "ground_truth_payload": {
+        "question_id": "beh-lik-002",
+        "selected_option_ids": ["1"],
+        "text_response": "1",
+        "code_response": null,
+        "confidence_score": 1.0,
+        "reasoning": "Candidate exhibits high ownership and proactive problem-solving. Reverse-coded/negative polarity item demands 1 (Strongly Disagree).",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "Negative polarity question for Ownership. Strongly Disagree demonstrates high initiative.",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "exact_match",
+        "acceptable_range": [1, 2]
+      }
+    },
+    {
+      "question_id": "beh-lik-003",
+      "category": "behavioral",
+      "question_type": "slider",
+      "difficulty": "easy",
+      "estimated_time_seconds": 60,
+      "prompt": "Please indicate your level of agreement: 'I actively seek out code reviews and technical feedback from peers to identify blind spots in my thinking.'",
+      "options": [
+        {"id": "1", "text": "Strongly Disagree"},
+        {"id": "2", "text": "Disagree"},
+        {"id": "3", "text": "Neutral"},
+        {"id": "4", "text": "Agree"},
+        {"id": "5", "text": "Strongly Agree"}
+      ],
+      "input_specifications": {
+        "scale_min": 1,
+        "scale_max": 5,
+        "step": 1,
+        "trait": "Intellectual Humility & Growth Mindset",
+        "trait_polarity": "positive"
+      },
+      "ground_truth_answer": 5,
+      "ground_truth_payload": {
+        "question_id": "beh-lik-003",
+        "selected_option_ids": ["5"],
+        "text_response": "5",
+        "code_response": null,
+        "confidence_score": 1.0,
+        "reasoning": "Candidate embraces feedback and iterative peer improvement.",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "Positive polarity for Growth Mindset and Team Collaboration.",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "exact_match",
+        "acceptable_range": [4, 5]
+      }
+    }
+  ]
+}

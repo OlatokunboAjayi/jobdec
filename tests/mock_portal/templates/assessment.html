@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="assessment-layout" data-testid="assessment-layout">
+
+  {% if platform == "hirevue" %}
+  <div id="hirevue-media-check" class="media-check-banner" data-testid="media-check">
+    <div class="webcam-preview">
+      <video id="mock-webcam-stream" autoplay playsinline muted data-testid="webcam-video"></video>
+      <div class="mic-indicator">
+        <span class="mic-icon">🎙️</span>
+        <div class="mic-meter"><div class="mic-level" style="width: 85%;"></div></div>
+      </div>
+    </div>
+    <div class="media-status-text">
+      <strong>Camera &amp; Microphone Active</strong> &bull; Anti-proctoring session verification online.
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="stepper-progress">
+    <div class="progress-bar-container">
+      <div id="progress-fill" class="progress-fill" style="width: {{ progress_pct | default('10') }}%;"></div>
+    </div>
+    <div class="progress-label">
+      Question <span id="current-q-index">1</span> of <span id="total-q-count">{{ questions | length }}</span>
+    </div>
+  </div>
+
+  <form id="assessment-form" data-testid="assessment-form" onsubmit="return false;">
+    <div class="questions-wrapper">
+      {% for q in questions %}
+      <div class="question-container {% if loop.first %}active{% endif %}"
+           id="question-{{ q.question_id }}"
+           data-testid="question-card"
+           data-question-id="{{ q.question_id }}"
+           data-category="{{ q.category }}"
+           data-type="{{ q.question_type }}"
+           data-index="{{ loop.index0 }}">
+
+        <div class="question-meta-row">
+          <span class="category-tag tag-{{ q.category }}">{{ q.category | capitalize }}</span>
+          <span class="type-tag">{{ q.question_type | replace('_', ' ') | title }}</span>
+          {% if q.difficulty %}
+          <span class="diff-tag diff-{{ q.difficulty }}">{{ q.difficulty | title }}</span>
+          {% endif %}
+        </div>
+
+        <h3 class="question-prompt" data-testid="question-prompt">
+          {{ q.prompt }}
+        </h3>
+
+        {% if q.context %}
+        <div class="question-context-box">
+          {{ q.context }}
+        </div>
+        {% endif %}
+
+        <!-- Question Body by Type -->
+
+        <!-- 1. Single Choice (Radio) -->
+        {% if q.question_type == "single_choice" %}
+        <div class="radio-group" role="radiogroup" data-testid="radio-group-{{ q.question_id }}">
+          {% for opt in q.options or [] %}
+          <label class="radio-option" for="radio-{{ q.question_id }}-{{ opt.id }}">
+            <input type="radio"
+                   id="radio-{{ q.question_id }}-{{ opt.id }}"
+                   name="q_{{ q.question_id }}"
+                   value="{{ opt.id }}"
+                   data-testid="radio-{{ opt.id }}">
+            <span class="radio-custom"></span>
+            <span class="option-text"><strong>{{ opt.id }}.</strong> {{ opt.text }}</span>
+          </label>
+          {% endfor %}
+        </div>
+
+        <!-- 2. Multiple Choice (Checkboxes) -->
+        {% elif q.question_type == "multiple_choice" %}
+        <div class="checkbox-group" data-testid="checkbox-group-{{ q.question_id }}">
+          {% for opt in q.options or [] %}
+          <label class="checkbox-option" for="chk-{{ q.question_id }}-{{ opt.id }}">
+            <input type="checkbox"
+                   id="chk-{{ q.question_id }}-{{ opt.id }}"
+                   name="q_{{ q.question_id }}[]"
+                   value="{{ opt.id }}"
+                   data-testid="checkbox-{{ opt.id }}">
+            <span class="checkbox-custom"></span>
+            <span class="option-text"><strong>{{ opt.id }}.</strong> {{ opt.text }}</span>
+          </label>
+          {% endfor %}
+        </div>
+
+        <!-- 3. Short Text / Numeric Input -->
+        {% elif q.question_type == "short_text" %}
+        <div class="short-text-group">
+          <input type="text"
+                 id="input-{{ q.question_id }}"
+                 name="q_{{ q.question_id }}"
+                 class="text-input"
+                 data-testid="text-input-{{ q.question_id }}"
+                 placeholder="Enter exact answer (e.g. numeric, fraction, expression)...">
+        </div>
+
+        <!-- 4. Behavioral STAR Long Essay -->
+        {% elif q.question_type == "essay" %}
+        <div class="essay-group">
+          <textarea id="textarea-{{ q.question_id }}"
+                    name="q_{{ q.question_id }}"
+                    class="essay-textarea"
+                    rows="9"
+                    data-testid="textarea-{{ q.question_id }}"
+                    placeholder="Structure response using STAR format (Situation, Task, Action, Result)..."></textarea>
+          <div class="textarea-footer">
+            <span id="word-count-{{ q.question_id }}" class="word-counter" data-testid="word-count-{{ q.question_id }}">0 words</span>
+            <span class="hint-text">Grounded in candidate enterprise facts &amp; quantified impact</span>
+          </div>
+        </div>
+
+        <!-- 5. Likert Scale Slider -->
+        {% elif q.question_type == "slider" %}
+        <div class="likert-wrapper" data-testid="likert-container-{{ q.question_id }}">
+          <input type="range"
+                 min="1" max="5" step="1" value="3"
+                 id="slider-{{ q.question_id }}"
+                 name="q_{{ q.question_id }}"
+                 class="likert-slider"
+                 data-testid="slider-{{ q.question_id }}">
+          <div class="slider-labels">
+            <span>1: Strongly Disagree</span>
+            <span id="slider-val-{{ q.question_id }}" data-testid="slider-val-{{ q.question_id }}">3: Neutral</span>
+            <span>5: Strongly Agree</span>
+          </div>
+        </div>
+
+        <!-- 6. Situational Judgment Ranking (SJT) -->
+        {% elif q.question_type == "ranking" %}
+        <div class="ranking-group" data-testid="ranking-container-{{ q.question_id }}">
+          <p class="ranking-instructions">Assign unique rank from 1 (Most Effective) to {{ (q.options or []) | length }} (Least Effective):</p>
+          {% for opt in q.options or [] %}
+          <div class="rank-row">
+            <span class="rank-option-desc"><strong>{{ opt.id }}.</strong> {{ opt.text }}</span>
+            <select class="rank-select"
+                    id="rank-{{ q.question_id }}-{{ opt.id }}"
+                    data-testid="rank-select-{{ opt.id }}"
+                    data-item-id="{{ opt.id }}">
+              <option value="">--Rank--</option>
+              {% for r in range(1, (q.options or []) | length + 1) %}
+              <option value="{{ r }}">{{ r }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- 7. Code Editor Mock (Monaco / Ace textarea with live runner) -->
+        {% elif q.question_type == "code" %}
+        <div class="code-editor-section" id="code-section-{{ q.question_id }}" data-testid="code-editor-container">
+          <div class="editor-header">
+            <span class="file-tab">solution.py</span>
+            <select id="code-language-select" class="lang-select" data-testid="language-select">
+              <option value="python" selected>Python 3</option>
+              <option value="javascript">JavaScript</option>
+            </select>
+          </div>
+          <div class="monaco-editor-mock" role="textbox">
+            <textarea id="code-editor"
+                      class="code-textarea"
+                      data-testid="code-editor"
+                      data-question-id="{{ q.question_id }}"
+                      spellcheck="false"
+                      data-language="python">{{ q.code_metadata.starter_template if q.code_metadata else "def solution():\n    pass\n" }}</textarea>
+          </div>
+          <div class="editor-toolbar">
+            <button type="button"
+                    id="btn-run-code"
+                    class="btn btn-secondary"
+                    data-testid="btn-run-code"
+                    data-question-id="{{ q.question_id }}">
+              ▶ Run Code
+            </button>
+            <span id="run-spinner" class="spinner" style="display: none;">Running...</span>
+          </div>
+          <div id="console-output" class="console-box" data-testid="console-output" aria-live="polite">
+            Ready. Click 'Run Code' to execute test cases against the solution.
+          </div>
+        </div>
+        {% endif %}
+
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Stepper Navigation & Submission Controls -->
+    <div class="portal-actions">
+      <button type="button" id="btn-prev-question" class="btn btn-outline" data-testid="btn-prev-question" disabled>
+        &larr; Previous
+      </button>
+      <button type="button" id="btn-next-question" class="btn btn-outline" data-testid="btn-next-question">
+        Next &rarr;
+      </button>
+      <button type="button" id="btn-submit-assessment" class="btn btn-success" data-testid="btn-submit-assessment">
+        Finish &amp; Submit Assessment
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

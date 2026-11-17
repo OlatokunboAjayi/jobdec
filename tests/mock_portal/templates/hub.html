@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hub-container" data-testid="hub-container">
+  <div class="hub-intro">
+    <h2>Simulated Assessment Platforms</h2>
+    <p>Select a platform to launch an offline assessment session against ground-truth fixtures.</p>
+  </div>
+
+  <div class="platform-grid">
+    <div class="platform-card card-hackerrank" data-platform="hackerrank">
+      <div class="card-badge">Technical &amp; Coding</div>
+      <h3>HackerRank</h3>
+      <p>Algorithmic coding challenges with live Python test case execution and technical MCQs.</p>
+      <div class="card-meta">
+        <span>⏱ 60 mins</span> &bull; <span>Algorithmic Code + MCQs</span>
+      </div>
+      <a href="/portal/hackerrank" class="btn btn-primary" data-testid="launch-hackerrank">Launch Assessment</a>
+    </div>
+
+    <div class="platform-card card-codility" data-platform="codility">
+      <div class="card-badge">Timed Algorithms</div>
+      <h3>Codility</h3>
+      <p>Asymptotic time/space complexity, edge cases, and anti-blur proctoring monitor.</p>
+      <div class="card-meta">
+        <span>⏱ 40 mins</span> &bull; <span>Algorithmic Optimization</span>
+      </div>
+      <a href="/portal/codility" class="btn btn-primary" data-testid="launch-codility">Launch Assessment</a>
+    </div>
+
+    <div class="platform-card card-testgorilla" data-platform="testgorilla">
+      <div class="card-badge">Behavioral &amp; Technical</div>
+      <h3>TestGorilla</h3>
+      <p>Multi-stage behavioral traits, Likert psychometrics, and technical screening.</p>
+      <div class="card-meta">
+        <span>⏱ 30 mins</span> &bull; <span>Mixed Cognitive Battery</span>
+      </div>
+      <a href="/portal/testgorilla" class="btn btn-primary" data-testid="launch-testgorilla">Launch Assessment</a>
+    </div>
+
+    <div class="platform-card card-ccat" data-platform="ccat">
+      <div class="card-badge">Logic &amp; Math Battery</div>
+      <h3>Criteria CCAT</h3>
+      <p>Rapid-fire sequence deduction, Boolean syllogisms, and neuro-symbolic algebra.</p>
+      <div class="card-meta">
+        <span>⏱ 15 mins</span> &bull; <span>High-Speed Problem Solving</span>
+      </div>
+      <a href="/portal/ccat" class="btn btn-primary" data-testid="launch-ccat">Launch Assessment</a>
+    </div>
+
+    <div class="platform-card card-hirevue" data-platform="hirevue">
+      <div class="card-badge">Video &amp; Behavioral</div>
+      <h3>HireVue</h3>
+      <p>STAR behavioral essays, SJT ranking decisions, and media hardware readiness.</p>
+      <div class="card-meta">
+        <span>⏱ 45 mins</span> &bull; <span>STAR Framing + SJT</span>
+      </div>
+      <a href="/portal/hirevue" class="btn btn-primary" data-testid="launch-hirevue">Launch Assessment</a>
+    </div>
+  </div>
+
+  <div class="hub-controls">
+    <h3>Test Harness Controls</h3>
+    <div class="controls-row">
+      <button type="button" id="btn-reset-state" class="btn btn-danger" data-testid="btn-reset-server">
+        Reset Server State
+      </button>
+      <span id="reset-status" class="reset-msg" style="display: none;">State reset successfully.</span>
+    </div>
+  </div>
+
+  {% if active_sessions %}
+  <div class="sessions-overview">
+    <h3>Active / Recent Sessions ({{ active_sessions | length }})</h3>
+    <table class="sessions-table">
+      <thead>
+        <tr>
+          <th>Session ID</th>
+          <th>Platform</th>
+          <th>Status</th>
+          <th>Score</th>
+          <th>Violations</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in active_sessions %}
+        <tr>
+          <td><code>{{ s.session_id }}</code></td>
+          <td>{{ s.platform }}</td>
+          <td>{{ "Submitted" if s.submitted else "In Progress" }}</td>
+          <td>{{ s.submission_result.score if s.submission_result else "Pending" }}</td>
+          <td>{{ s.violations }}</td>
+          <td>
+            {% if s.submitted %}
+            <a href="/portal/results/{{ s.session_id }}" class="btn btn-small">View Results</a>
+            {% else %}
+            <a href="/portal/{{ s.platform }}?session_id={{ s.session_id }}" class="btn btn-small">Resume</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

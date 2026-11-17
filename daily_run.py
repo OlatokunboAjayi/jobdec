@@ -40,10 +40,29 @@ def run_py(args):
     return r.returncode
 
 
+def run_assessments_step(solve: bool = False, max_tasks: int = 10):
+    """Discover pending assessments from inbox/tracker and optionally run the Assessment Door."""
+    from assessments.orchestrator import AssessmentOrchestrator
+    orch = AssessmentOrchestrator(headless=True)
+    results = orch.run_pipeline(source="auto", dry_run=not solve, max_tasks=max_tasks)
+    return [
+        {
+            "company": r.company,
+            "role": r.role,
+            "platform": r.platform.value if hasattr(r.platform, "value") else str(r.platform),
+            "status": r.status,
+            "url": r.assessment_url,
+        }
+        for r in results
+    ]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--no-apply", action="store_true")
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--no-assessments", action="store_true", help="Skip assessment door scan/execution")
+    ap.add_argument("--solve-assessments", action="store_true", help="Execute pending assessments automatically (default: scan/dry-run)")
     ap.add_argument("--max-age", type=int, default=14, help="newest postings only (days)")
     a = ap.parse_args()
     cfg = llm.config()
@@ -55,12 +74,17 @@ def main():
         jobs = job_sources.fetch(a.max_age)
         print(f"[dry-run] {len(jobs)} fresh US postings on SimplifyJobs; queue has {len(RE.parse_queue_file(HERE / 'queue.txt'))} lines")
         print(f"[dry-run] submitted today: {RE.submitted_today()} / cap {RE.strategy()['daily_cap']}")
+        if not a.no_assessments:
+            pending_oa = run_assessments_step(solve=False, max_tasks=10)
+            print(f"[dry-run] assessment door discovered {len(pending_oa)} pending assessment(s)")
         print("[dry-run] nothing changed.")
         return
 
     step("1 inbox", lambda: run_py(["outcomes.py", "--since", (datetime.date.today() - datetime.timedelta(days=30)).isoformat()]), report)
     step("1b prep packs", lambda: smarts.build_prep_packs(), report)
     step("1c learning", lambda: smarts.learner_train(), report)
+    if not a.no_assessments:
+        step("1d assessments", lambda: run_assessments_step(solve=a.solve_assessments, max_tasks=10), report)
     step("2 sources", lambda: job_sources.add_new(a.max_age), report)
     step("3 triage", lambda: run_py(["triage.py", "--scout"]), report)
     if not a.no_apply:
@@ -88,6 +112,9 @@ def write_briefing(report):
     preps = report.get("1b prep packs") if isinstance(report.get("1b prep packs"), list) else []
     if preps:
         lines += ["## New interview / assessment prep sheets"] + [f"- {p}" for p in preps] + [""]
+    oa_items = report.get("1d assessments") if isinstance(report.get("1d assessments"), list) else []
+    if oa_items:
+        lines += ["## Assessment Door"] + [f"- {o['company']} — {o['role']} ({o['platform']}): {o['status']}" for o in oa_items[:10]] + [""]
     fups = report.get("6b follow-ups") if isinstance(report.get("6b follow-ups"), list) else []
     if fups:
         lines += ["## Follow-ups to send (7 days, no reply)"] + [f"- **{r['company']}**: {r['followup']}" for r in fups] + [""]

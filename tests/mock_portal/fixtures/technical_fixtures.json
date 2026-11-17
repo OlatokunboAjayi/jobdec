@@ -1,0 +1,457 @@
+{
+  "domain": "technical",
+  "version": "1.0.0",
+  "fixtures": [
+    {
+      "question_id": "tech-code-two-sum",
+      "category": "technical",
+      "question_type": "code",
+      "difficulty": "easy",
+      "estimated_time_seconds": 600,
+      "prompt": "Given an array of integers `nums` and an integer `target`, return indices of the two numbers such that they add up to `target`.\n\nYou may assume that each input would have exactly one solution, and you may not use the same element twice.\n\nYou can return the answer in any order.",
+      "code_metadata": {
+        "language": "python",
+        "entry_point": "two_sum",
+        "starter_code": "def two_sum(nums: list[int], target: int) -> list[int]:\n    \"\"\"\n    Return indices of two numbers in nums that sum to target.\n    \"\"\"\n    pass\n",
+        "parameters": [
+          {"name": "nums", "type": "list[int]"},
+          {"name": "target", "type": "int"}
+        ],
+        "return_type": "list[int]",
+        "test_cases": [
+          {
+            "id": "tc1",
+            "input": {"nums": [2, 7, 11, 15], "target": 9},
+            "expected_output": [0, 1],
+            "is_hidden": false,
+            "description": "Standard basic pair at beginning"
+          },
+          {
+            "id": "tc2",
+            "input": {"nums": [3, 2, 4], "target": 6},
+            "expected_output": [1, 2],
+            "is_hidden": false,
+            "description": "Pair in middle and end"
+          },
+          {
+            "id": "tc3",
+            "input": {"nums": [3, 3], "target": 6},
+            "expected_output": [0, 1],
+            "is_hidden": false,
+            "description": "Duplicate values"
+          },
+          {
+            "id": "tc4",
+            "input": {"nums": [-1, -2, -3, -4, -5], "target": -8},
+            "expected_output": [2, 4],
+            "is_hidden": true,
+            "description": "Negative numbers"
+          },
+          {
+            "id": "tc5",
+            "input": {"nums": [0, 4, 3, 0], "target": 0},
+            "expected_output": [0, 3],
+            "is_hidden": true,
+            "description": "Zeros in array"
+          },
+          {
+            "id": "tc6",
+            "input": {"nums": [1000000, 500, 250, 1000000], "target": 2000000},
+            "expected_output": [0, 3],
+            "is_hidden": true,
+            "description": "Large integer values"
+          }
+        ]
+      },
+      "ground_truth_answer": "def two_sum(nums: list[int], target: int) -> list[int]:\n    seen = {}\n    for i, num in enumerate(nums):\n        complement = target - num\n        if complement in seen:\n            return [seen[complement], i]\n        seen[num] = i\n    return []\n",
+      "ground_truth_payload": {
+        "question_id": "tech-code-two-sum",
+        "selected_option_ids": [],
+        "text_response": null,
+        "code_response": "def two_sum(nums: list[int], target: int) -> list[int]:\n    seen = {}\n    for i, num in enumerate(nums):\n        complement = target - num\n        if complement in seen:\n            return [seen[complement], i]\n        seen[num] = i\n    return []\n",
+        "confidence_score": 1.0,
+        "reasoning": "Optimal O(N) time and O(N) space one-pass hash map approach tracking indices of seen numbers.",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "Using a dictionary to store value -> index allows checking whether the complement (target - num) exists in O(1) time per element, achieving linear overall runtime.",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "test_suite",
+        "time_complexity_expected": "O(N)",
+        "space_complexity_expected": "O(N)",
+        "criteria": [
+          {"criterion": "Public Test Pass", "weight_percent": 50, "description": "Passes tc1, tc2, tc3"},
+          {"criterion": "Hidden Test Pass", "weight_percent": 30, "description": "Passes tc4, tc5, tc6"},
+          {"criterion": "Asymptotic Complexity", "weight_percent": 20, "description": "Strict O(N) time without nested iterations"}
+        ],
+        "negative_penalties": [
+          {"penalty": -20, "condition": "O(N^2) nested loop implementation"}
+        ]
+      }
+    },
+    {
+      "question_id": "tech-code-palindrome-perm",
+      "category": "technical",
+      "question_type": "code",
+      "difficulty": "medium",
+      "estimated_time_seconds": 600,
+      "prompt": "Given a string `s`, determine if any permutation of the string could form a palindrome.\n\nIgnore letter casing (treat uppercase and lowercase as equivalent) and ignore non-alphanumeric characters (such as spaces and punctuation).",
+      "code_metadata": {
+        "language": "python",
+        "entry_point": "can_permute_palindrome",
+        "starter_code": "def can_permute_palindrome(s: str) -> bool:\n    \"\"\"\n    Return True if any permutation of s can form a palindrome.\n    \"\"\"\n    pass\n",
+        "parameters": [
+          {"name": "s", "type": "str"}
+        ],
+        "return_type": "bool",
+        "test_cases": [
+          {
+            "id": "tc1",
+            "input": {"s": "civic"},
+            "expected_output": true,
+            "is_hidden": false,
+            "description": "Standard palindrome string"
+          },
+          {
+            "id": "tc2",
+            "input": {"s": "Tact Coa"},
+            "expected_output": true,
+            "is_hidden": false,
+            "description": "Permutation of 'taco cat' with spaces and mixed case"
+          },
+          {
+            "id": "tc3",
+            "input": {"s": "code"},
+            "expected_output": false,
+            "is_hidden": false,
+            "description": "Cannot form a palindrome"
+          },
+          {
+            "id": "tc4",
+            "input": {"s": ""},
+            "expected_output": true,
+            "is_hidden": true,
+            "description": "Empty string"
+          },
+          {
+            "id": "tc5",
+            "input": {"s": "A man, a plan, a canal: Panama!"},
+            "expected_output": true,
+            "is_hidden": true,
+            "description": "Sentence with heavy punctuation"
+          },
+          {
+            "id": "tc6",
+            "input": {"s": "AaBbCcDdEe"},
+            "expected_output": true,
+            "is_hidden": true,
+            "description": "All even character frequencies"
+          }
+        ]
+      },
+      "ground_truth_answer": "def can_permute_palindrome(s: str) -> bool:\n    counts = {}\n    for char in s.lower():\n        if char.isalnum():\n            counts[char] = counts.get(char, 0) + 1\n    odd_count = sum(1 for count in counts.values() if count % 2 != 0)\n    return odd_count <= 1\n",
+      "ground_truth_payload": {
+        "question_id": "tech-code-palindrome-perm",
+        "selected_option_ids": [],
+        "text_response": null,
+        "code_response": "def can_permute_palindrome(s: str) -> bool:\n    counts = {}\n    for char in s.lower():\n        if char.isalnum():\n            counts[char] = counts.get(char, 0) + 1\n    odd_count = sum(1 for count in counts.values() if count % 2 != 0)\n    return odd_count <= 1\n",
+        "confidence_score": 1.0,
+        "reasoning": "A string can be permuted into a palindrome if and only if at most one character has an odd frequency count. O(N) time and O(1) bounded space.",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "Filter alphanumeric characters, lowercase them, tally frequency of each character, and verify that at most one character occurs an odd number of times.",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "test_suite",
+        "time_complexity_expected": "O(N)",
+        "space_complexity_expected": "O(1)",
+        "criteria": [
+          {"criterion": "Public Test Pass", "weight_percent": 50, "description": "Passes tc1, tc2, tc3"},
+          {"criterion": "Hidden Test Pass", "weight_percent": 30, "description": "Passes tc4, tc5, tc6"},
+          {"criterion": "Code Quality", "weight_percent": 20, "description": "Handles case-insensitivity and punctuation filtering properly"}
+        ]
+      }
+    },
+    {
+      "question_id": "tech-code-interval-merge",
+      "category": "technical",
+      "question_type": "code",
+      "difficulty": "medium",
+      "estimated_time_seconds": 600,
+      "prompt": "Given an array of `intervals` where `intervals[i] = [start_i, end_i]`, merge all overlapping intervals, and return an array of the non-overlapping intervals that cover all the intervals in the input.",
+      "code_metadata": {
+        "language": "python",
+        "entry_point": "merge_intervals",
+        "starter_code": "def merge_intervals(intervals: list[list[int]]) -> list[list[int]]:\n    \"\"\"\n    Merge all overlapping intervals and return resulting list.\n    \"\"\"\n    pass\n",
+        "parameters": [
+          {"name": "intervals", "type": "list[list[int]]"}
+        ],
+        "return_type": "list[list[int]]",
+        "test_cases": [
+          {
+            "id": "tc1",
+            "input": {"intervals": [[1, 3], [2, 6], [8, 10], [15, 18]]},
+            "expected_output": [[1, 6], [8, 10], [15, 18]],
+            "is_hidden": false,
+            "description": "Standard overlapping intervals"
+          },
+          {
+            "id": "tc2",
+            "input": {"intervals": [[1, 4], [4, 5]]},
+            "expected_output": [[1, 5]],
+            "is_hidden": false,
+            "description": "Touching boundary intervals"
+          },
+          {
+            "id": "tc3",
+            "input": {"intervals": []},
+            "expected_output": [],
+            "is_hidden": false,
+            "description": "Empty input"
+          },
+          {
+            "id": "tc4",
+            "input": {"intervals": [[5, 8]]},
+            "expected_output": [[5, 8]],
+            "is_hidden": true,
+            "description": "Single interval"
+          },
+          {
+            "id": "tc5",
+            "input": {"intervals": [[1, 10], [2, 3], [4, 5], [6, 7]]},
+            "expected_output": [[1, 10]],
+            "is_hidden": true,
+            "description": "All intervals engulfed by the first"
+          },
+          {
+            "id": "tc6",
+            "input": {"intervals": [[2, 3], [4, 5], [6, 7], [8, 9], [1, 10]]},
+            "expected_output": [[1, 10]],
+            "is_hidden": true,
+            "description": "Unsorted intervals engulfed by last element"
+          }
+        ]
+      },
+      "ground_truth_answer": "def merge_intervals(intervals: list[list[int]]) -> list[list[int]]:\n    if not intervals:\n        return []\n    sorted_intervals = sorted(intervals, key=lambda x: x[0])\n    merged = [sorted_intervals[0]]\n    for current in sorted_intervals[1:]:\n        last_start, last_end = merged[-1]\n        curr_start, curr_end = current\n        if curr_start <= last_end:\n            merged[-1] = [last_start, max(last_end, curr_end)]\n        else:\n            merged.append(current)\n    return merged\n",
+      "ground_truth_payload": {
+        "question_id": "tech-code-interval-merge",
+        "selected_option_ids": [],
+        "text_response": null,
+        "code_response": "def merge_intervals(intervals: list[list[int]]) -> list[list[int]]:\n    if not intervals:\n        return []\n    sorted_intervals = sorted(intervals, key=lambda x: x[0])\n    merged = [sorted_intervals[0]]\n    for current in sorted_intervals[1:]:\n        last_start, last_end = merged[-1]\n        curr_start, curr_end = current\n        if curr_start <= last_end:\n            merged[-1] = [last_start, max(last_end, curr_end)]\n        else:\n            merged.append(current)\n    return merged\n",
+        "confidence_score": 1.0,
+        "reasoning": "Sort intervals by start time in O(N log N), then linear scan merging overlapping intervals.",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "Sorting ensures that whenever interval i starts after interval i-1, all subsequent intervals also start after interval i-1. A single pass compares current start with previous end.",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "test_suite",
+        "time_complexity_expected": "O(N log N)",
+        "space_complexity_expected": "O(N)",
+        "criteria": [
+          {"criterion": "Public Test Pass", "weight_percent": 50, "description": "Passes tc1, tc2, tc3"},
+          {"criterion": "Hidden Test Pass", "weight_percent": 30, "description": "Passes tc4, tc5, tc6"},
+          {"criterion": "Edge Handling", "weight_percent": 20, "description": "Handles unsorted inputs and empty lists gracefully"}
+        ]
+      }
+    },
+    {
+      "question_id": "tech-code-valid-parentheses",
+      "category": "technical",
+      "question_type": "code",
+      "difficulty": "easy",
+      "estimated_time_seconds": 450,
+      "prompt": "Given a string `s` containing just the characters `'('`, `')'`, `'{'`, `'}'`, `'['` and `']'`, determine if the input string is valid.\n\nAn input string is valid if:\n1. Open brackets must be closed by the same type of brackets.\n2. Open brackets must be closed in the correct order.\n3. Every close bracket has a corresponding open bracket of the same type.",
+      "code_metadata": {
+        "language": "python",
+        "entry_point": "is_valid_parentheses",
+        "starter_code": "def is_valid_parentheses(s: str) -> bool:\n    \"\"\"\n    Determine if the brackets in s are valid.\n    \"\"\"\n    pass\n",
+        "parameters": [
+          {"name": "s", "type": "str"}
+        ],
+        "return_type": "bool",
+        "test_cases": [
+          {
+            "id": "tc1",
+            "input": {"s": "()[]{}"},
+            "expected_output": true,
+            "is_hidden": false,
+            "description": "Standard sequential pairs"
+          },
+          {
+            "id": "tc2",
+            "input": {"s": "([{}])"},
+            "expected_output": true,
+            "is_hidden": false,
+            "description": "Nested brackets"
+          },
+          {
+            "id": "tc3",
+            "input": {"s": "(]"},
+            "expected_output": false,
+            "is_hidden": false,
+            "description": "Mismatched pair"
+          },
+          {
+            "id": "tc4",
+            "input": {"s": ""},
+            "expected_output": true,
+            "is_hidden": true,
+            "description": "Empty string"
+          },
+          {
+            "id": "tc5",
+            "input": {"s": "((("},
+            "expected_output": false,
+            "is_hidden": true,
+            "description": "Unclosed openers"
+          },
+          {
+            "id": "tc6",
+            "input": {"s": ")))"},
+            "expected_output": false,
+            "is_hidden": true,
+            "description": "Leading closers"
+          }
+        ]
+      },
+      "ground_truth_answer": "def is_valid_parentheses(s: str) -> bool:\n    mapping = {')': '(', '}': '{', ']': '['}\n    stack = []\n    for char in s:\n        if char in mapping.values():\n            stack.append(char)\n        elif char in mapping:\n            if not stack or stack.pop() != mapping[char]:\n                return False\n    return len(stack) == 0\n",
+      "ground_truth_payload": {
+        "question_id": "tech-code-valid-parentheses",
+        "selected_option_ids": [],
+        "text_response": null,
+        "code_response": "def is_valid_parentheses(s: str) -> bool:\n    mapping = {')': '(', '}': '{', ']': '['}\n    stack = []\n    for char in s:\n        if char in mapping.values():\n            stack.append(char)\n        elif char in mapping:\n            if not stack or stack.pop() != mapping[char]:\n                return False\n    return len(stack) == 0\n",
+        "confidence_score": 1.0,
+        "reasoning": "Classic stack-based validation running in O(N) time and O(N) space.",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "Push openers to stack; for closers, pop and check matching opener. At end, stack must be empty.",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "test_suite",
+        "time_complexity_expected": "O(N)",
+        "space_complexity_expected": "O(N)",
+        "criteria": [
+          {"criterion": "Public Test Pass", "weight_percent": 50, "description": "Passes tc1, tc2, tc3"},
+          {"criterion": "Hidden Test Pass", "weight_percent": 50, "description": "Passes tc4, tc5, tc6"}
+        ]
+      }
+    },
+    {
+      "question_id": "tech-mcq-py-default-args",
+      "category": "technical",
+      "question_type": "single_choice",
+      "difficulty": "easy",
+      "estimated_time_seconds": 120,
+      "prompt": "What will be printed when the following Python code executes?\n\n```python\ndef append_item(val, items=[]):\n    items.append(val)\n    return items\n\nprint(append_item(1))\nprint(append_item(2))\n```",
+      "options": [
+        {"id": "A", "text": "[1] followed by [2]"},
+        {"id": "B", "text": "[1] followed by [1, 2]"},
+        {"id": "C", "text": "[1] followed by an error"},
+        {"id": "D", "text": "None followed by None"}
+      ],
+      "ground_truth_answer": "B",
+      "ground_truth_payload": {
+        "question_id": "tech-mcq-py-default-args",
+        "selected_option_ids": ["B"],
+        "text_response": null,
+        "code_response": null,
+        "confidence_score": 1.0,
+        "reasoning": "In Python, default parameter values are evaluated once at function definition time, not at invocation time. Mutating the default list modifies the object attached to __defaults__.",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "Python's default arguments are evaluated once when the function definition is executed. As a result, the same mutable list object is shared across subsequent calls when no argument is passed.",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "exact_match"
+      }
+    },
+    {
+      "question_id": "tech-mcq-py-gil-concurrency",
+      "category": "technical",
+      "question_type": "single_choice",
+      "difficulty": "medium",
+      "estimated_time_seconds": 120,
+      "prompt": "In standard CPython, how does the Global Interpreter Lock (GIL) impact multi-threaded programs?",
+      "options": [
+        {"id": "A", "text": "It prevents multiple threads from performing non-blocking network I/O concurrently."},
+        {"id": "B", "text": "It forces multi-process programs to run on a single CPU core."},
+        {"id": "C", "text": "It prevents multiple OS threads from executing Python bytecode simultaneously across multiple CPU cores, limiting multi-threaded CPU-bound speedup."},
+        {"id": "D", "text": "It causes all global variables to be immutable."}
+      ],
+      "ground_truth_answer": "C",
+      "ground_truth_payload": {
+        "question_id": "tech-mcq-py-gil-concurrency",
+        "selected_option_ids": ["C"],
+        "text_response": null,
+        "code_response": null,
+        "confidence_score": 1.0,
+        "reasoning": "The CPython GIL is a mutual-exclusion lock preventing multiple threads from executing Python bytecodes at once, making CPU-bound multi-threading non-parallel without multiprocessing.",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "The GIL ensures memory safety in CPython by restricting bytecode execution to one native thread at any instant. Multi-threading still helps with I/O-bound tasks because I/O releases the GIL, but CPU-bound scaling requires multiprocessing.",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "exact_match"
+      }
+    },
+    {
+      "question_id": "tech-mcq-sql-window-rank",
+      "category": "technical",
+      "question_type": "single_choice",
+      "difficulty": "medium",
+      "estimated_time_seconds": 120,
+      "prompt": "Given a table `salaries` with amounts: [100000, 90000, 90000, 80000]. What are the resulting rank values for the four rows when using `DENSE_RANK() OVER (ORDER BY salary DESC)` vs `RANK() OVER (ORDER BY salary DESC)`?",
+      "options": [
+        {"id": "A", "text": "DENSE_RANK yields [1, 2, 2, 3]; RANK yields [1, 2, 2, 4]"},
+        {"id": "B", "text": "DENSE_RANK yields [1, 2, 3, 4]; RANK yields [1, 2, 2, 3]"},
+        {"id": "C", "text": "DENSE_RANK yields [1, 2, 2, 4]; RANK yields [1, 2, 2, 3]"},
+        {"id": "D", "text": "Both yield [1, 2, 3, 4]"}
+      ],
+      "ground_truth_answer": "A",
+      "ground_truth_payload": {
+        "question_id": "tech-mcq-sql-window-rank",
+        "selected_option_ids": ["A"],
+        "text_response": null,
+        "code_response": null,
+        "confidence_score": 1.0,
+        "reasoning": "DENSE_RANK does not skip ranks after ties (1, 2, 2, 3). RANK leaves gaps corresponding to the number of tied rows (1, 2, 2, 4).",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "DENSE_RANK produces consecutive integers without gaps after ties, whereas RANK produces gaps equal to the tie count minus one.",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "exact_match"
+      }
+    },
+    {
+      "question_id": "tech-mcq-algo-hash-collision",
+      "category": "technical",
+      "question_type": "single_choice",
+      "difficulty": "easy",
+      "estimated_time_seconds": 120,
+      "prompt": "What is the worst-case time complexity of searching for a key in a standard hash table using separate chaining, assuming an adversarial hash function that maps every key to the exact same bucket?",
+      "options": [
+        {"id": "A", "text": "O(1)"},
+        {"id": "B", "text": "O(log N)"},
+        {"id": "C", "text": "O(N log N)"},
+        {"id": "D", "text": "O(N)"}
+      ],
+      "ground_truth_answer": "D",
+      "ground_truth_payload": {
+        "question_id": "tech-mcq-algo-hash-collision",
+        "selected_option_ids": ["D"],
+        "text_response": null,
+        "code_response": null,
+        "confidence_score": 1.0,
+        "reasoning": "When all N keys collide into the same bucket, the bucket's linked list contains N elements, degrading search to linear O(N) time.",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "With all keys in a single bucket, search requires traversing a linked list of size N, resulting in O(N) worst-case time complexity.",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "exact_match"
+      }
+    }
+  ]
+}

@@ -1,0 +1,232 @@
+{
+  "domain": "logic",
+  "version": "1.0.0",
+  "fixtures": [
+    {
+      "question_id": "logic-seq-num-poly-01",
+      "category": "logic",
+      "question_type": "short_text",
+      "difficulty": "easy",
+      "estimated_time_seconds": 60,
+      "prompt": "Identify the missing number that continues the following sequence:\n\n3, 8, 15, 24, 35, ?",
+      "input_specifications": {
+        "format": "integer"
+      },
+      "ground_truth_answer": "48",
+      "ground_truth_payload": {
+        "question_id": "logic-seq-num-poly-01",
+        "selected_option_ids": [],
+        "text_response": "48",
+        "code_response": null,
+        "confidence_score": 1.0,
+        "reasoning": "The sequence follows the formula n^2 + 2n for n=1,2,3,4,5,6 (or differences 5, 7, 9, 11, 13). 35 + 13 = 48.",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "Examining first differences: 8 - 3 = 5; 15 - 8 = 7; 24 - 15 = 9; 35 - 24 = 11. The differences increase by 2 each step. Next difference is 13. Therefore, 35 + 13 = 48. Alternatively, formula is (n+1)^2 - 1 for n=1..6 => 7^2 - 1 = 48.",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "exact_match",
+        "acceptable_equivalents": ["48"]
+      }
+    },
+    {
+      "question_id": "logic-seq-num-interleave-01",
+      "category": "logic",
+      "question_type": "short_text",
+      "difficulty": "medium",
+      "estimated_time_seconds": 90,
+      "prompt": "What is the next number in this interleaved sequence?\n\n4, 30, 8, 26, 16, 22, 32, ?",
+      "input_specifications": {
+        "format": "integer"
+      },
+      "ground_truth_answer": "18",
+      "ground_truth_payload": {
+        "question_id": "logic-seq-num-interleave-01",
+        "selected_option_ids": [],
+        "text_response": "18",
+        "code_response": null,
+        "confidence_score": 1.0,
+        "reasoning": "Even-indexed terms double: 4, 8, 16, 32. Odd-indexed terms decrease by 4: 30, 26, 22, 18. Next term is from odd sequence: 22 - 4 = 18.",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "Two independent sequences are interleaved: Sub-sequence A at positions 1, 3, 5, 7 is 4, 8, 16, 32 (multiplying by 2). Sub-sequence B at positions 2, 4, 6, 8 is 30, 26, 22, ? (subtracting 4). The next value at position 8 is 22 - 4 = 18.",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "exact_match",
+        "acceptable_equivalents": ["18"]
+      }
+    },
+    {
+      "question_id": "logic-seq-letter-alpha-01",
+      "category": "logic",
+      "question_type": "short_text",
+      "difficulty": "medium",
+      "estimated_time_seconds": 90,
+      "prompt": "Find the next single letter in this progression:\n\nB, E, I, N, T, ?",
+      "input_specifications": {
+        "format": "single_uppercase_letter"
+      },
+      "ground_truth_answer": "A",
+      "ground_truth_payload": {
+        "question_id": "logic-seq-letter-alpha-01",
+        "selected_option_ids": [],
+        "text_response": "A",
+        "code_response": null,
+        "confidence_score": 1.0,
+        "reasoning": "Letter positions in English alphabet: B=2 (+3)-> E=5 (+4)-> I=9 (+5)-> N=14 (+6)-> T=20 (+7)-> 27 = A (wrapping around alphabet 26+1).",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "The step size between alphabetical positions increases by 1 each time (+3, +4, +5, +6, +7). T is letter 20; 20 + 7 = 27. Wrapping modulo 26 yields 1, which corresponds to the letter A.",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "exact_match",
+        "acceptable_equivalents": ["A", "a"]
+      }
+    },
+    {
+      "question_id": "logic-syl-deductive-01",
+      "category": "logic",
+      "question_type": "single_choice",
+      "difficulty": "medium",
+      "estimated_time_seconds": 120,
+      "prompt": "Consider the following premises:\n1. All cloud engineers understand distributed systems.\n2. No one who understands distributed systems ignores network latency.\n3. Some security analysts are cloud engineers.\n\nWhich of the following conclusions logically and necessarily follows from these premises?",
+      "options": [
+        {"id": "A", "text": "All security analysts understand distributed systems."},
+        {"id": "B", "text": "Some security analysts do not ignore network latency."},
+        {"id": "C", "text": "No security analysts ignore network latency."},
+        {"id": "D", "text": "All cloud engineers are security analysts."}
+      ],
+      "ground_truth_answer": "B",
+      "ground_truth_payload": {
+        "question_id": "logic-syl-deductive-01",
+        "selected_option_ids": ["B"],
+        "text_response": null,
+        "code_response": null,
+        "confidence_score": 1.0,
+        "reasoning": "From 1 and 2, no cloud engineer ignores network latency. From 3, there exists an individual X who is both a security analyst and a cloud engineer. Therefore, X is a security analyst who does not ignore network latency.",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "Let C = Cloud engineers, D = Understand distributed systems, L = Ignore network latency, S = Security analysts. (1) C ⊆ D. (2) D ∩ L = ∅ => C ∩ L = ∅. (3) S ∩ C ≠ ∅. Let x ∈ S ∩ C. Then x ∈ S and x ∉ L. Therefore, Some S are not L (Option B).",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "exact_match"
+      }
+    },
+    {
+      "question_id": "logic-syl-contrapositive-01",
+      "category": "logic",
+      "question_type": "single_choice",
+      "difficulty": "easy",
+      "estimated_time_seconds": 90,
+      "prompt": "Given the rule: 'If an incoming API request contains an invalid signature, the authentication gateway returns HTTP 401 Unauthorized.'\n\nSuppose the gateway does NOT return HTTP 401 Unauthorized for a given request. What can be definitively concluded?",
+      "options": [
+        {"id": "A", "text": "The request was processed and returned HTTP 200 OK."},
+        {"id": "B", "text": "The request did not contain an invalid signature."},
+        {"id": "C", "text": "The gateway was temporarily unreachable."},
+        {"id": "D", "text": "The request was throttled due to rate limits."}
+      ],
+      "ground_truth_answer": "B",
+      "ground_truth_payload": {
+        "question_id": "logic-syl-contrapositive-01",
+        "selected_option_ids": ["B"],
+        "text_response": null,
+        "code_response": null,
+        "confidence_score": 1.0,
+        "reasoning": "By Modus Tollens (contrapositive law): P -> Q is logically equivalent to ~Q -> ~P. Here, Not Q (not HTTP 401) implies Not P (did not contain an invalid signature).",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "Conditional statement: P (invalid signature) => Q (returns 401). By modus tollens, ¬Q (does not return 401) entails ¬P (does not contain an invalid signature). We cannot deduce whether it succeeded (200) or failed with another code (e.g. 500), only that the signature was not invalid.",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "exact_match"
+      }
+    },
+    {
+      "question_id": "logic-order-linear-01",
+      "category": "logic",
+      "question_type": "single_choice",
+      "difficulty": "medium",
+      "estimated_time_seconds": 150,
+      "prompt": "Five microservices—Auth, Billing, Catalog, Discovery, and Edge—are deployed sequentially in a pipeline according to the following constraints:\n- Edge is deployed before Catalog.\n- Discovery is deployed immediately after Billing.\n- Auth is deployed after Catalog.\n- Billing is deployed after Auth.\n\nWhich service is deployed in the third position (middle) of the sequence?",
+      "options": [
+        {"id": "A", "text": "Auth"},
+        {"id": "B", "text": "Billing"},
+        {"id": "C", "text": "Catalog"},
+        {"id": "D", "text": "Discovery"}
+      ],
+      "ground_truth_answer": "A",
+      "ground_truth_payload": {
+        "question_id": "logic-order-linear-01",
+        "selected_option_ids": ["A"],
+        "text_response": null,
+        "code_response": null,
+        "confidence_score": 1.0,
+        "reasoning": "Order constraints: Edge < Catalog, Catalog < Auth, Auth < Billing, Billing immediately before Discovery. Full sequence: Edge (1), Catalog (2), Auth (3), Billing (4), Discovery (5). Third is Auth.",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "Chaining the inequalities: Edge < Catalog < Auth < Billing < Discovery. The unique linear order is: 1st: Edge, 2nd: Catalog, 3rd: Auth, 4th: Billing, 5th: Discovery. The service deployed in the 3rd position is Auth (Option A).",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "exact_match"
+      }
+    },
+    {
+      "question_id": "logic-matrix-abstract-01",
+      "category": "logic",
+      "question_type": "single_choice",
+      "difficulty": "hard",
+      "estimated_time_seconds": 180,
+      "prompt": "In a 3x3 pattern matrix, each cell contains a geometric arrow. Across each row from left to right, two rules apply consistently:\n1. Orientation: The arrow rotates 90 degrees clockwise in each successive column.\n2. Shading: The fill pattern cycles through: Solid Black -> Striped/Hatched -> Empty White.\n\nIf the bottom row has:\n- Left cell (Column 1): A Solid Black arrow pointing UP.\n- Middle cell (Column 2): A Striped arrow pointing RIGHT.\n\nWhat figure MUST appear in the rightmost cell (Column 3) of the bottom row?",
+      "options": [
+        {"id": "A", "text": "An Empty White arrow pointing DOWN"},
+        {"id": "B", "text": "A Solid Black arrow pointing DOWN"},
+        {"id": "C", "text": "An Empty White arrow pointing LEFT"},
+        {"id": "D", "text": "A Striped arrow pointing LEFT"}
+      ],
+      "ground_truth_answer": "A",
+      "ground_truth_payload": {
+        "question_id": "logic-matrix-abstract-01",
+        "selected_option_ids": ["A"],
+        "text_response": null,
+        "code_response": null,
+        "confidence_score": 1.0,
+        "reasoning": "Starting from UP, a 90 deg clockwise rotation yields RIGHT, and another 90 deg clockwise rotation yields DOWN. Shading cycles from Solid -> Striped -> Empty White. Combining both rules gives an Empty White arrow pointing DOWN.",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "Applying Rule 1: UP (col 1) -> RIGHT (col 2) -> DOWN (col 3). Applying Rule 2: Solid (col 1) -> Striped (col 2) -> Empty White (col 3). The resulting figure is an Empty White arrow pointing DOWN (Option A).",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "exact_match"
+      }
+    },
+    {
+      "question_id": "logic-eval-assumption-01",
+      "category": "logic",
+      "question_type": "single_choice",
+      "difficulty": "medium",
+      "estimated_time_seconds": 150,
+      "prompt": "An engineering VP argues: 'Migrating our core backend from monolithic virtual machines to serverless functions will cut our overall compute infrastructure spending by 40%, because our workload experiences major idle troughs during overnight hours where monolithic VMs sit underutilized.'\n\nWhich of the following represents an essential unstated assumption upon which this conclusion depends?",
+      "options": [
+        {"id": "A", "text": "Serverless execution will completely eliminate software bugs and downtime."},
+        {"id": "B", "text": "The per-millisecond execution surcharge and concurrency costs of serverless during peak traffic hours will not exceed the financial savings realized from scaling to zero during overnight troughs."},
+        {"id": "C", "text": "All developers on the engineering team are already proficient in writing stateless event-driven Python handlers."},
+        {"id": "D", "text": "Network latency between serverless containers and the database will remain under 5 milliseconds."}
+      ],
+      "ground_truth_answer": "B",
+      "ground_truth_payload": {
+        "question_id": "logic-eval-assumption-01",
+        "selected_option_ids": ["B"],
+        "text_response": null,
+        "code_response": null,
+        "confidence_score": 1.0,
+        "reasoning": "For total cost to decrease by 40%, the higher unit cost of serverless during peak periods must not cancel out the overnight idle savings. If peak serverless costs exceed idle savings, total expenditure would increase rather than decrease.",
+        "solver_tier": "deterministic_stub"
+      },
+      "explanation": "Using the negation test: if peak serverless pricing DOES exceed the idle savings, total expenditure will NOT drop by 40% (the argument collapses). Thus, Option B is a necessary assumption.",
+      "rubric": {
+        "max_score": 100,
+        "scoring_type": "exact_match"
+      }
+    }
+  ]
+}

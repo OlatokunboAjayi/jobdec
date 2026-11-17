@@ -1106,27 +1106,63 @@ def launch_full_job_deck(workers: int = 3, dry_run: bool = False) -> dict:
     }
 
 
-def launch_assessment_solver_from_telegram(dry_run: bool = False) -> dict:
-    """Triggers the Autonomous Assessment Solver (linkedin_outreach.assessments) from Telegram."""
-    repo_root = ROOT.parent.parent
-    py_exe = repo_root / ".venv" / "Scripts" / "python.exe"
+def launch_assessment_solver_from_telegram(dry_run: bool = False, url: str = "", company: str = "") -> dict:
+    """Triggers the Autonomous Assessment Door (`python -m assessments`) from Telegram."""
+    py_exe = ROOT.parent / ".venv" / "Scripts" / "python.exe"
+    if not py_exe.exists():
+        py_exe = ROOT / ".venv" / "Scripts" / "python.exe"
     if not py_exe.exists():
         py_exe = Path(sys.executable)
 
-    cmd = [
-        str(py_exe),
-        "-m",
-        "linkedin_outreach.assessments",
-        "--solve-pending",
-        "--headless",
-    ]
+    cmd = [str(py_exe), "-m", "assessments"]
+    if url:
+        cmd.extend(["--url", url, "--company", company or "Target Company", "--headless"])
+    else:
+        cmd.extend(["--solve-pending", "--headless"])
+
     pid = None
     if not dry_run:
         log_file = open(ROOT / "assessments_solver.log", "a", encoding="utf-8", errors="ignore")
         flags = getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
-        proc = subprocess.Popen(cmd, cwd=str(repo_root), stdout=log_file, stderr=subprocess.STDOUT, creationflags=flags)
+        proc = subprocess.Popen(cmd, cwd=str(ROOT), stdout=log_file, stderr=subprocess.STDOUT, creationflags=flags)
         pid = proc.pid
     return {"ok": True, "pid": pid, "cmd": " ".join(cmd)}
+
+
+def get_assessments_door_panel():
+    """Discovers pending assessments and returns (html_text, InlineKeyboardMarkup)."""
+    tasks = []
+    try:
+        from assessments.extractor import extract_assessment_tasks
+        tasks = extract_assessment_tasks("auto")
+    except Exception as e:
+        return (
+            f"⚠️ <b>Assessment Door error:</b> <code>{h(e)}</code>",
+            InlineKeyboardMarkup([[InlineKeyboardButton("✖️ Close", callback_data="btn_close")]]),
+        )
+
+    lines = [
+        "🧠 <b>Assessment Door</b>",
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+        f"Discovered <b>{len(tasks)}</b> assessment task(s) from your inbox & tracker.",
+        "",
+    ]
+    for idx, t in enumerate(tasks[:6], start=1):
+        plat = t.platform.value if hasattr(t.platform, "value") else str(t.platform)
+        lines.append(f"{idx}. <b>{h(t.company)}</b> — {h(t.role[:42])} (<code>{h(plat)}</code>)")
+    if len(tasks) > 6:
+        lines.append(f"<i>…and {len(tasks) - 6} more.</i>")
+    if not tasks:
+        lines.append("✅ <i>No pending assessments found in inbox.json or applications.csv.</i>")
+
+    rows = []
+    if tasks:
+        rows.append([InlineKeyboardButton("🚀 Run Assessment Door", callback_data="btn_run_assessments")])
+    rows.append([
+        InlineKeyboardButton("🔄 Refresh Scan", callback_data="btn_assessments"),
+        InlineKeyboardButton("✖️ Close", callback_data="btn_close"),
+    ])
+    return "\n".join(lines), InlineKeyboardMarkup(rows)
 
 
 def launch_runner(workers=None, queue="queue_ranked.txt", delay=2.0, user_action=True):
@@ -1925,7 +1961,18 @@ async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TY
         await finish(msg, f"➕ <b>Queue refilled:</b> {added} new eligible job(s) added. {m['unapplied_count']} left to apply.")
 
     elif data == "btn_assessments":
-        await show(query, ASSESSMENTS_MSG)
+        txt, kb = await asyncio.to_thread(get_assessments_door_panel)
+        await show(query, txt, kb)
+
+    elif data == "btn_run_assessments":
+        msg = await show(query, "⏳ <i>Launching Assessment Door on pending OAs…</i>")
+        res = await asyncio.to_thread(launch_assessment_solver_from_telegram, False)
+        await finish(
+            msg,
+            f"🧠 <b>Assessment Door Started</b> (PID <code>{res.get('pid')}</code>)\n"
+            f"Log: <code>assessments_solver.log</code>\n\n"
+            "<i>You'll receive completion alerts and audit logs automatically.</i>",
+        )
 
     elif data.startswith(("quick_apply|", "target_idx|", "target_all|")):
         parts = data.split("|")
@@ -2454,7 +2501,8 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # Priority 1.8: assessments (/assessments, /oa)
     if t_lower in ["/assessments", "assessments", "/oa", "oa", "solve assessments", "run assessments", "complete assessments"]:
-        await safe_reply(update.message, ASSESSMENTS_MSG, reply_markup=CLOSE_KB)
+        txt, kb = await asyncio.to_thread(get_assessments_door_panel)
+        await safe_reply(update.message, txt, reply_markup=kb)
         return
 
     # Priority 1.9: Queue Inspector & Customizer (/queue)
