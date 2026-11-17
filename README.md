@@ -122,7 +122,7 @@ graph LR
 
 ### 1. Clone & Setup
 ```bash
-git clone https://github.com/tokunboajayi/jobdec.git
+git clone https://github.com/OlatokunboAjayi/jobdec.git
 cd jobdec
 
 # Windows:
