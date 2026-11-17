@@ -256,9 +256,9 @@ class DualProviderLLMClient:
         import anthropic
 
         model = (
-            os.getenv("CLAUDE_FAST_MODEL", "claude-3-5-haiku-latest")
+            os.getenv("CLAUDE_FAST_MODEL", "claude-haiku-4-5")
             if tier == "fast"
-            else (os.getenv("CLAUDE_EXPERT_MODEL") or os.getenv("ASSESSMENT_CLAUDE_MODEL", "claude-3-5-sonnet-latest"))
+            else (os.getenv("CLAUDE_EXPERT_MODEL") or os.getenv("ASSESSMENT_CLAUDE_MODEL", "claude-sonnet-4-5"))
         )
         client = anthropic.Anthropic(api_key=api_key, max_retries=1, timeout=25.0)
         prompt_user = user
@@ -297,9 +297,9 @@ class DualProviderLLMClient:
         import openai
 
         model = (
-            os.getenv("OPENROUTER_FAST_MODEL", "meta-llama/llama-3.3-70b-instruct")
+            os.getenv("OPENROUTER_FAST_MODEL", "google/gemini-2.5-flash")
             if tier == "fast"
-            else (os.getenv("OPENROUTER_EXPERT_MODEL") or os.getenv("ASSESSMENT_OPENROUTER_MODEL", "anthropic/claude-3.5-sonnet"))
+            else (os.getenv("OPENROUTER_EXPERT_MODEL") or os.getenv("ASSESSMENT_OPENROUTER_MODEL", "google/gemini-2.5-flash"))
         )
         client = openai.OpenAI(
             base_url="https://openrouter.ai/api/v1",
@@ -334,12 +334,35 @@ class DualProviderLLMClient:
             return schema.model_validate_json(cleaned)
         return text
 
+    @staticmethod
+    def _build_optimal_system_prompt() -> str:
+        """Builds a rule-grounded, future-dependency-aware system prompt from candidate config (no PII)."""
+        parts = [
+            "You are an expert multi-modal assessment optimizer. Return an exact AnswerPayload JSON.",
+            "Optimize every answer for the single highest-scoring, most accurate, and role-aligned option.",
+            "Respect all candidate rules and maintain strict consistency with earlier answers in the session "
+            "so future/paired consistency-check questions never contradict prior selections.",
+        ]
+        try:
+            from assessments.templates import load_behavioral_config
+            cfg = load_behavioral_config()
+            parts.append(f"Target Role Fit: {cfg.role_fit}")
+            parts.append(f"Core Values: {', '.join(cfg.core_values)}")
+            if cfg.trait_polarities:
+                pol = ", ".join(f"{k}={v}" for k, v in cfg.trait_polarities.items())
+                parts.append(f"Configured Trait Polarities (1-5): {pol}")
+            if cfg.standing_facts:
+                parts.append("Candidate Standing Facts:\n- " + "\n- ".join(cfg.standing_facts[:6]))
+        except Exception:
+            pass
+        return "\n".join(parts)
+
     def _call_claude_question(self, context: Any) -> Dict[str, Any]:
         from assessments.contracts import AnswerPayload
 
         prompt = self._format_question_prompt(context)
         ans = self._call_claude_raw(
-            system="You are an expert multi-modal assessment solver. Return an exact AnswerPayload JSON.",
+            system=self._build_optimal_system_prompt(),
             user=prompt,
             schema=AnswerPayload,
             tier="expert",
@@ -351,7 +374,7 @@ class DualProviderLLMClient:
 
         prompt = self._format_question_prompt(context)
         ans = self._call_openrouter_raw(
-            system="You are an expert multi-modal assessment solver. Return an exact AnswerPayload JSON.",
+            system=self._build_optimal_system_prompt(),
             user=prompt,
             schema=AnswerPayload,
             tier="expert",

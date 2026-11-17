@@ -134,6 +134,13 @@ class LogicSolver:
             nxt = nums[-1] + next_d1
             return nxt, f"Quadratic sequence with second difference {diffs2[0]}: {nums[-1]} + {next_d1} = {nxt}"
 
+        # Geometric progression check before higher-order differences
+        if all(nums[i] != 0 and nums[i + 1] % nums[i] == 0 for i in range(len(nums) - 1)):
+            ratios = [nums[i + 1] // nums[i] for i in range(len(nums) - 1)]
+            if len(set(ratios)) == 1:
+                nxt = nums[-1] * ratios[0]
+                return nxt, f"Geometric progression with constant ratio {ratios[0]} -> {nxt}"
+
         # Cubic sequence check (third finite difference Delta_3)
         if len(diffs2) >= 2:
             diffs3 = [diffs2[i + 1] - diffs2[i] for i in range(len(diffs2) - 1)]

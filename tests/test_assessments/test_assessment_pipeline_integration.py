@@ -58,3 +58,29 @@ def test_daily_run_assessment_step_dry_run(monkeypatch, tmp_path):
     monkeypatch.setattr(CAND, "APPLICATIONS", tmp_path / "applications.csv")
     out = daily_run.run_assessments_step(solve=False, max_tasks=3)
     assert isinstance(out, list)
+
+
+def test_optimal_solver_auto_enables_llm_and_tracks_session(monkeypatch):
+    from assessments.solver import AssessmentSolver
+    from assessments.llm_client import DualProviderLLMClient
+
+    monkeypatch.setenv("ASSESSMENT_TEST_MODE", "false")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-live-key-placeholder")
+    s_auto = AssessmentSolver()
+    assert s_auto.prefer_llm is True
+
+    s_det = AssessmentSolver(llm_client=DualProviderLLMClient(stub_provider=None), prefer_llm=False)
+    assert s_det.prefer_llm is False
+    ans = s_det.solve_question({
+        "question_id": "opt-1",
+        "category": "logic",
+        "question_type": "short_text",
+        "prompt_text": "What is the next number in the sequence: 2, 4, 8, 16, ?",
+    })
+    assert ans.text_response == "32"
+    assert len(s_det._session_history) == 1
+
+    prompt = DualProviderLLMClient._build_optimal_system_prompt()
+    assert "future/paired consistency-check questions" in prompt
+    assert "Target Role Fit:" in prompt
+

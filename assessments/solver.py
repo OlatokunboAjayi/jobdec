@@ -7,7 +7,8 @@ domain solvers: Behavioral, Technical, Mathematics, and Logic.
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Union
+import os
+from typing import Any, Dict, List, Optional, Union
 
 from assessments.contracts import (
     AnswerPayload,
@@ -31,10 +32,26 @@ class AssessmentSolver:
     def __init__(
         self,
         llm_client: Optional[DualProviderLLMClient] = None,
-        prefer_llm: bool = False,
+        prefer_llm: Optional[bool] = None,
     ) -> None:
+        if os.getenv("ASSESSMENT_TEST_MODE", "").lower() not in ("true", "1", "yes"):
+            try:
+                from dotenv import load_dotenv
+                import candidate as CAND
+                if CAND.ENV.exists():
+                    load_dotenv(CAND.ENV, override=False)
+            except Exception:
+                pass
         self.llm_client = llm_client or DualProviderLLMClient()
-        self.prefer_llm = prefer_llm
+        if prefer_llm is None:
+            has_live_key = any(
+                self.llm_client._is_valid_api_key(os.getenv(k, ""))
+                for k in ("ANTHROPIC_API_KEY", "OPENROUTER_API_KEY")
+            )
+            self.prefer_llm = has_live_key
+        else:
+            self.prefer_llm = prefer_llm
+        self._session_history: List[Dict[str, str]] = []
         self.behavioral_solver = BehavioralSolver(llm_client=self.llm_client)
         self.technical_solver = TechnicalSolver(llm_client=self.llm_client)
         self.mathematics_solver = MathematicsSolver(llm_client=self.llm_client)
@@ -118,13 +135,21 @@ class AssessmentSolver:
 
         # First run the domain-specialized engine (SymPy, AST code verifier, SJT/STAR/Likert, sequence reasoner)
         domain_answer = self.solve_domain_deterministic(payload)
+        final_ans = domain_answer
 
         # If prefer_llm is active or stub provider has an exact ground-truth fixture for this question_id,
-        # consult the DualProviderLLMClient with domain_answer as the zero-loss fallback.
+        # consult the DualProviderLLMClient with domain_answer + session history as the zero-loss baseline.
         if self.prefer_llm or self.llm_client._get_stub() is not None:
             try:
+                llm_context: Any = payload
+                if self.llm_client._get_stub() is None:
+                    llm_context = {
+                        "question": payload.model_dump(),
+                        "deterministic_baseline": domain_answer.model_dump(),
+                        "prior_session_answers": self._session_history[-8:],
+                    }
                 raw_dict = self.llm_client.solve_with_failover(
-                    payload,
+                    llm_context,
                     domain_fallback_fn=lambda _: domain_answer.model_dump(),
                 )
                 if isinstance(raw_dict, AnswerPayload):
@@ -133,33 +158,38 @@ class AssessmentSolver:
                     # Preserve domain_answer's specialized fields (slider_value, ranking_order, code_response)
                     # if stub/LLM returned generic fallback
                     if raw_dict.get("solver_tier") == "stub_fallback" and domain_answer.confidence_score >= 0.85:
-                        return domain_answer
-                    merged = domain_answer.model_dump()
-                    for k, v in raw_dict.items():
-                        if v is not None and v != [] and v != "":
-                            merged[k] = v
-                    # Ensure slider_value and ranking_order stay populated when needed
-                    qtype = str(payload.question_type.value if hasattr(payload.question_type, "value") else payload.question_type).lower()
-                    if qtype == "slider" and merged.get("slider_value") is None:
-                        if merged.get("text_response"):
-                            try:
-                                merged["slider_value"] = int(float(merged["text_response"]))
-                            except ValueError:
-                                pass
-                    if qtype == "ranking" and not merged.get("ranking_order") and merged.get("selected_option_ids"):
-                        merged["ranking_order"] = list(merged["selected_option_ids"])
-                    ans = AnswerPayload.model_validate(merged)
+                        ans = domain_answer
+                    else:
+                        merged = domain_answer.model_dump()
+                        for k, v in raw_dict.items():
+                            if v is not None and v != [] and v != "":
+                                merged[k] = v
+                        # Ensure slider_value and ranking_order stay populated when needed
+                        qtype = str(payload.question_type.value if hasattr(payload.question_type, "value") else payload.question_type).lower()
+                        if qtype == "slider" and merged.get("slider_value") is None:
+                            if merged.get("text_response"):
+                                try:
+                                    merged["slider_value"] = int(float(merged["text_response"]))
+                                except ValueError:
+                                    pass
+                        if qtype == "ranking" and not merged.get("ranking_order") and merged.get("selected_option_ids"):
+                            merged["ranking_order"] = list(merged["selected_option_ids"])
+                        ans = AnswerPayload.model_validate(merged)
                 else:
                     ans = domain_answer
 
                 # Strip markdown fences if code response
                 if ans.code_response:
                     ans.code_response = TechnicalSolver.strip_markdown_fences(ans.code_response)
-                return ans
+                final_ans = ans
             except Exception:
-                return domain_answer
+                final_ans = domain_answer
 
-        return domain_answer
+        self._session_history.append({
+            "question": payload.prompt_text[:180],
+            "selected": ", ".join(final_ans.selected_option_ids) or (final_ans.text_response or "")[:120],
+        })
+        return final_ans
 
 
 _default_solver: Optional[AssessmentSolver] = None
