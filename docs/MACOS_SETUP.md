@@ -16,12 +16,21 @@ Job Deck isolates the macOS environment inside **`.venv-mac`** with dedicated de
 
 ## 2. Quick Start: One-Command Setup
 
-In Terminal, navigate to the Job Deck directory and run:
+Prerequisites: Python 3.10+ (`brew install python`) and git (`xcode-select --install`).
+
+In Terminal:
 
 ```bash
-chmod +x setup_mac.sh
-./setup_mac.sh
+git clone https://github.com/OlatokunboAjayi/jobdec.git
+cd jobdec
+./setup_mac.sh                       # if macOS says "permission denied": bash setup_mac.sh
+source .venv-mac/bin/activate
+python setup_wizard.py --new <your-name>   # creates profiles/<your-name>/ (.env, profile.json, resumes/)
+export JOBDEC_HOME=profiles/<your-name>    # add this line to ~/.zshrc so every run uses your account
 ```
+
+Then put your resume PDF in `profiles/<your-name>/resumes/`, and your Telegram bot token, chat ID and AI key
+in `profiles/<your-name>/.env` (never commit that file).
 
 ### What `setup_mac.sh` Does:
 1. Detects your CPU architecture (`arm64` Apple Silicon or `x86_64` Intel).
@@ -79,6 +88,9 @@ tmux new -s jobdeck
 # Detach with: Ctrl+B then D
 # Reattach anytime with: tmux attach -t jobdeck
 ```
+
+`bot.sh` and `run_pipeline.sh` run under `caffeinate -i`, so the Mac won't idle-sleep while they run.
+Closing the lid still sleeps a MacBook on battery: keep it open, or plugged in with an external display.
 
 ### Option B: macOS Background Process (`nohup`)
 ```bash

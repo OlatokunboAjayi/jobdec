@@ -14,4 +14,8 @@ elif [ -d "${DIR}/.venv" ]; then
 fi
 
 echo "=== Launching Job Deck Control Bot & Watchdog (macOS) ==="
-python -u telegram_bot_service.py "$@"
+# caffeinate -i: an idle-sleeping MacBook stops every application mid-form (the lid still sleeps it)
+if command -v caffeinate >/dev/null 2>&1; then
+    exec caffeinate -i python -u telegram_bot_service.py "$@"
+fi
+exec python -u telegram_bot_service.py "$@"
