@@ -2910,6 +2910,8 @@ def main():
                             break
                         if page.locator("input:not([type=hidden]):visible").count() == 0 and not re.search(r"error|required|missing", b_text, re.I):
                             print("\n[SUCCESS] Form cleared without error - application submitted.")
+                            # no confirmation page or text was seen: keep what the page said so the claim can be checked
+                            print(f"[Unconfirmed Submit] url={page.url[:150]} page={' '.join(b_text.split())[:300]!r}")
                             log_applied(page.url, a.company, a.role, resume, job_url=a.url)
                             submitted = True
                             break

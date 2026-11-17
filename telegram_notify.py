@@ -26,6 +26,8 @@ ASKED_FILE = candidate.DATA / "telegram_asked.json"
 ASK_TTL = 24 * 3600   # the same question is asked at most once a day, however many workers hit it (A-6)
 MAX_ACTIVE_QUESTIONS = 3  # anti-spam: more wait in the outbox until these are answered or expire
 MAX_APP_ALERTS_PER_POLL = 10
+OUTBOX_MAX_AGE = 48 * 3600  # older questions belong to applications that already finished
+NEVER_ASK = re.compile(r"verification code|one[- ]time (pass)?code|\botp\b|passcode|digit \d+ of", re.I)  # emailed codes, not facts
 
 
 def send_message(text: str, reply_markup=None, parse_mode: str = "HTML"):
@@ -135,12 +137,39 @@ def notify_urgent_inbox(company: str, subject: str, action: str):
     return send_message(msg)
 
 
+def known_by_logic(question: str, options: list = None, company: str = "") -> bool:
+    """Check every answer layer before asking the owner: profile rules, the candidate's facts, new wordings of
+    questions the owner already answered, then the fact-grounded AI. A confident AI answer is saved as a rule
+    so the next application doesn't need the AI. (Nov 11-12: the AI was down and ~630 questions reached the owner.)"""
+    try:
+        import fill
+        from agents import options as OPTS, semantic, intelligent_resolver
+        r = fill.rule_for(question)
+        if r and r.get("a") not in (None, "", "SKIP", "ASK"):
+            return True
+        if OPTS.fact_rule(question, fill.rule_for)[1]:
+            return True
+        if semantic.available() and semantic.known_answer(question):
+            return True
+        res = intelligent_resolver.resolve_field(question, field_type="select" if options else "text",
+                                                 options=options, company=company, role="")
+        if res and res.get("answer") and res.get("confidence") == "high":
+            if not options and len(res["answer"]) <= 120:  # short facts only: an essay names one company
+                import telegram_query_engine
+                telegram_query_engine.save_rule(question, res["answer"], "ai_from_facts")
+            print(f"[Ask Gate] answered by logic, not asking: {question[:60]!r} -> {res['answer'][:40]!r}")
+            return True
+    except Exception as e:
+        print(f"[Ask Gate] check failed, asking the owner: {e}")
+    return False
+
+
 def ask_question_interactive(question: str, options: list = None, company: str = ""):
     """Sends one form question to Telegram, deduped by question hash across workers/runs (A-6).
     Returns True when the question was sent or was already asked recently, False when it was not sent."""
     import telegram_query_engine
     q_clean = " ".join((question or "").split())
-    if len(q_clean) < 4:
+    if len(q_clean) < 4 or NEVER_ASK.search(q_clean):
         return False
     if not os.getenv("TELEGRAM_BOT_TOKEN", BOT_TOKEN).strip() or not os.getenv("TELEGRAM_CHAT_ID", CHAT_ID).strip():
         return False
@@ -152,6 +181,10 @@ def ask_question_interactive(question: str, options: list = None, company: str =
         if now - asked.get(q_id, 0) < ASK_TTL:
             return True
         if len(telegram_query_engine.load_pending_questions()) >= MAX_ACTIVE_QUESTIONS:
+            return False
+        if known_by_logic(q_clean, options, company):
+            asked[q_id] = now  # don't re-check the same question every poll
+            _write_json_atomic(ASKED_FILE, asked)
             return False
 
         item = telegram_query_engine.add_pending_question(q_clean, options, company)
@@ -194,7 +227,15 @@ def process_outbox() -> dict:
     """Reads what fill.py wrote (unanswered.json, applications.csv) and sends prompts / alerts. Called by the bot."""
     sent_q = 0
     data = _read_json(OUTBOX_QUESTIONS, [])
+    # the outbox is never pruned (5,351 questions back to Oct 25 on 2026-11-17): only ask about recent applications,
+    # and stop after a minute so the AI check on new questions doesn't block the bot's poll for hours
+    cutoff = time.strftime("%Y-%m-%dT%H:%M", time.localtime(time.time() - OUTBOX_MAX_AGE))
+    deadline = time.time() + 60
     for entry in data if isinstance(data, list) else []:
+        if str(entry.get("when", "")) < cutoff:
+            continue
+        if time.time() > deadline:
+            break
         company = urllib.parse.urlparse(str(entry.get("url", ""))).hostname or ""
         for q in entry.get("questions") or []:
             if isinstance(q, dict) and ask_question_interactive(q.get("label", ""), q.get("options"), company):

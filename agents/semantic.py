@@ -97,10 +97,31 @@ def nearest(query, candidates):
     return i, float(sims[i])
 
 
+_BANK = {"at": 0.0, "bank": []}
+
+
 def known_answers():
-    """(label, value) pairs answered by explicit profile.json rules on past applications (records/)."""
+    """(label, value) pairs the owner has taught: Telegram answers in profile.json plus rule answers on past
+    applications (records/). Cached 5 min: rescanning every record per field took minutes per application."""
+    import time
+    if time.time() - _BANK["at"] < 300:
+        return _BANK["bank"]
+    _BANK["bank"], _BANK["at"] = _known_answers(), time.time()
+    return _BANK["bank"]
+
+
+def _known_answers():
     import results_engine as RE
     seen = {}
+    try:  # a Telegram answer is saved as the escaped question text; unescape it to match new wordings of it
+        import candidate
+        for r in candidate.profile().get("rules", []):
+            if r.get("src") == "telegram_user" and isinstance(r.get("a"), str) and r["a"].strip():
+                lab = re.sub(r"\\(.)", r"\1", r.get("q", "")).strip()
+                if lab and not RE.SENSITIVE_RE.search(lab):
+                    seen.setdefault(lab.lower(), (lab, r["a"]))
+    except Exception:
+        pass
     for p in sorted((AUTOFILL / "records").glob("*/*.json")):
         try:
             for a in json.loads(p.read_text(encoding="utf-8")).get("answers", []):

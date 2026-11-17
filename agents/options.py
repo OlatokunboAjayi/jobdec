@@ -223,4 +223,18 @@ def fact_rule(label, rule_for):
     r = rule_for(probe)
     if r and r.get("a") not in (None, "", "SKIP", "ASK"):
         return cat, {**r, "q": re.escape(label), "src": "fact"}
+    key = FACT_KEYS.get(cat)
+    if key:  # the candidate's own stated fact (.env CANDIDATE_*), never a value written in code
+        try:
+            import candidate
+            v = candidate.fact(key)
+        except Exception:
+            v = ""
+        if v:
+            return cat, {"q": re.escape(label), "a": v, "src": "fact"}
     return cat, None
+
+
+FACT_KEYS = {"school": "UNIVERSITY", "country": "COUNTRY", "country_code": "PHONE_COUNTRY_CODE", "state": "STATE",
+             "city": "CITY", "zip": "ZIP_CODE", "degree": "DEGREE", "major": "MAJOR",
+             "graduation": "EXPECTED_GRAD_DATE", "gpa": "GPA", "year_in_school": "CURRENT_YEAR"}  # not race/veteran
