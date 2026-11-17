@@ -27,6 +27,7 @@ ASK_TTL = 24 * 3600   # the same question is asked at most once a day, however m
 MAX_ACTIVE_QUESTIONS = 3  # anti-spam: more wait in the outbox until these are answered or expire
 MAX_APP_ALERTS_PER_POLL = 10
 OUTBOX_MAX_AGE = 48 * 3600  # older questions belong to applications that already finished
+EEO_RE = re.compile(r"gender|race|racial|ethnic|veteran|disabilit|sexual orientation|pronoun|transgender|hispanic|latino", re.I)
 NEVER_ASK = re.compile(r"verification code|one[- ]time (pass)?code|\botp\b|passcode|digit \d+ of", re.I)  # emailed codes, not facts
 
 
@@ -142,6 +143,9 @@ def known_by_logic(question: str, options: list = None, company: str = "") -> bo
     questions the owner already answered, then the fact-grounded AI. A confident AI answer is saved as a rule
     so the next application doesn't need the AI. (Nov 11-12: the AI was down and ~630 questions reached the owner.)"""
     try:
+        import results_engine as RE
+        if RE.SENSITIVE_RE.search(question) or EEO_RE.search(question):
+            return False  # legal / EEO: fill couldn't apply the owner's rule here, so the owner decides (never the AI)
         import fill
         from agents import options as OPTS, semantic, intelligent_resolver
         r = fill.rule_for(question)

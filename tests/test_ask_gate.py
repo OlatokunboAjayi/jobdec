@@ -42,3 +42,12 @@ def test_outbox_skips_old_applications_and_code_fields(monkeypatch, tmp_path):
     TN.process_outbox()
     assert seen == ["New question?"]
     assert TN.NEVER_ASK.search("Enter verification code digit 2 of six.")
+
+
+def test_eeo_and_legal_questions_never_get_an_ai_answer(monkeypatch):
+    from agents import intelligent_resolver
+    called = []
+    monkeypatch.setattr(intelligent_resolver, "resolve_field", lambda *a, **k: called.append(a) or {"answer": "x", "confidence": "high"})
+    assert TN.known_by_logic("What is your gender identity?", ["Woman", "Man"]) is False
+    assert TN.known_by_logic("Have you ever been convicted of a felony?") is False
+    assert not called

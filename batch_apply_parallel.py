@@ -556,6 +556,24 @@ def main():
                 print(f"[{w_prefix}]   URL:    {job['url']}")
                 print(f"[{w_prefix}]   Resume: {resume_to_use}")
 
+                # Strict Exclusion: Pure Software Engineering & Heavy Low-Level Coding (exempting FDE, AI, Solutions, and Deployment roles)
+                # Runs before the network checks: it's free, and most queued roles are rejected here (2026-11-17)
+                role_str = (job.get("role") or "").lower()
+                from agents.role_filter import reject_reason as _rr
+                _why = _rr(job.get("role") or "", args.allow_fulltime)
+                if _why:
+                    print(f"[{w_prefix}] [Internship Gate] Skipping {_why}")
+                    blocked_urls.add(job["url"].strip())
+                    continue
+                is_fde_or_ai = bool(re.search(
+                    r"(?:forward[\s\-]*deploy|deployed\s+(?:software\s+)?engineer|\bfde\b|deployment\s+strategist|solutions?\s+engineer|field\s+engineer|sales\s+engineer|customer\s+engineer|ai\s+engineer|agent\s+engineer|automation\s+engineer|integration\s+engineer|implementation)",
+                    role_str
+                ))
+                if not is_fde_or_ai and re.search(r"\b(software\s+(engineer|developer|dev)|full\s*stack|backend|frontend|mobile\s+dev|ios\s+dev|android\s+dev|ml\s+engineer|machine\s+learning\s+engineer|algorithm\s+engineer|compiler|sde\b|swe\b)\b", role_str):
+                    print(f"[{w_prefix}] [Exclusion Guard] Skipping non-FDE SWE/coding role: {job['role']}")
+                    blocked_urls.add(job["url"].strip())  # re-picked every queue pass before (2026-11-11 live review)
+                    continue
+
                 # Pre-flight DNS/HTTP & Active Status check
                 try:
                     from agents import job_validator
@@ -575,23 +593,6 @@ def main():
                         continue
                 except Exception as e:
                     print(f"[{w_prefix}] Pre-submit guard failed, continuing: {e}")
-
-                # Strict Exclusion: Pure Software Engineering & Heavy Low-Level Coding (exempting FDE, AI, Solutions, and Deployment roles)
-                role_str = (job.get("role") or "").lower()
-                from agents.role_filter import reject_reason as _rr
-                _why = _rr(job.get("role") or "", args.allow_fulltime)
-                if _why:
-                    print(f"[{w_prefix}] [Internship Gate] Skipping {_why}")
-                    blocked_urls.add(job["url"].strip())
-                    continue
-                is_fde_or_ai = bool(re.search(
-                    r"(?:forward[\s\-]*deploy|deployed\s+(?:software\s+)?engineer|\bfde\b|deployment\s+strategist|solutions?\s+engineer|field\s+engineer|sales\s+engineer|customer\s+engineer|ai\s+engineer|agent\s+engineer|automation\s+engineer|integration\s+engineer|implementation)",
-                    role_str
-                ))
-                if not is_fde_or_ai and re.search(r"\b(software\s+(engineer|developer|dev)|full\s*stack|backend|frontend|mobile\s+dev|ios\s+dev|android\s+dev|ml\s+engineer|machine\s+learning\s+engineer|algorithm\s+engineer|compiler|sde\b|swe\b)\b", role_str):
-                    print(f"[{w_prefix}] [Exclusion Guard] Skipping non-FDE SWE/coding role: {job['role']}")
-                    blocked_urls.add(job["url"].strip())  # re-picked every queue pass before (2026-11-11 live review)
-                    continue
 
                 cmd = [
                     sys.executable, "-u", str(HERE / "fill.py"), job["url"],

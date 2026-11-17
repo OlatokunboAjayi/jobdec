@@ -4261,3 +4261,13 @@ Rtx Software Engineer 1 [Tucson, AZ; 0d old]   https://globalhr.wd5.myworkdayjob
 # ---- added by daily run 2026-11-11 (score>=7, tailored)
 Healthpeak Forward Deployed Software Engineer Intern [NYC; fit 8]   https://healthpeak.applytojob.com/apply/ss4v1Qi95q/Forward-Deployed-Software-Engineer-Internship   resumes/Healthpeak_FDSEIntern_2026-11-11.pdf
 Google Forward Deployed Engineering Intern BS/MS Summer 2027 [Sunnyvale/NYC; fit 7]   https://www.google.com/about/careers/applications/jobs/results/75665705386549958   resumes/Google_FDEIntern_2026-11-11.pdf
+
+# ---- added by daily run 2026-11-12 (score>=7, tailored)
+Salesforce Summer 2027 Intern - Forward Deployed Engineer - Global Public Sector [Remote US; fit 8]   https://salesforce.wd12.myworkdayjobs.com/External_Career_Site/job/Arkansas---Remote/Summer-2027-Intern---Forward-Deployed-Engineer---Global-Public-Sector_JR366026-1   resumes/Salesforce_FDEIntern_GPS_2026-11-12.pdf
+
+# ---- added by daily run 2026-11-16 (score>=7, tailored)
+Aprio Intern, AI & Automation Engineering [Atlanta, GA hybrid; fit 8]   https://jobs.lever.co/Aprio/9e6ecbf0-3945-4d49-a8bd-ae70e9caba4b   resumes/Aprio_AIAutomationEngIntern_2026-11-16.pdf
+Palantir Forward Deployed Software Engineer, Internship - Commercial [NYC; fit 7]   https://jobs.lever.co/palantir/4d29249a-d7e8-4c39-880d-3b35d7b2f6f6   resumes/Palantir_FDSEIntern_Commercial_2026-11-16.pdf
+
+# ---- added by daily run 2026-11-17 (score>=7, tailored)
+Cox Enterprises AI/Automation Intern - Summer 2027 [Atlanta, GA hybrid; fit 8]   https://jobs.coxenterprises.com/en/jobs/r202682342/aiautomation-intern-summer-2027/   resumes/Cox_AIAutomationIntern_2026-11-17.pdf

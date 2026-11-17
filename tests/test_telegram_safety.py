@@ -6,6 +6,7 @@ Hard rule under test: nothing a model or chat produces silently becomes a saved 
 import io
 import json
 import re
+import time
 import urllib.error
 
 import pytest
@@ -228,7 +229,7 @@ def test_model_and_page_text_is_html_escaped(eng, sent):
 
 def test_outbox_questions_asked_once_with_id_callbacks_and_no_auto_save(eng, sent):
     q = "What is your gender identity?"  # EEO: must be asked, never auto-saved (C-4)
-    entry = {"url": "https://jobs.example.com/1", "questions": [{"label": q, "options": ["Woman", "Man", "Decline"]}]}
+    entry = {"url": "https://jobs.example.com/1", "when": time.strftime("%Y-%m-%dT%H:%M"), "questions": [{"label": q, "options": ["Woman", "Man", "Decline"]}]}
     TN.OUTBOX_QUESTIONS.write_text(json.dumps([entry, entry]), encoding="utf-8")
     TN.process_outbox()
     TN.process_outbox()
