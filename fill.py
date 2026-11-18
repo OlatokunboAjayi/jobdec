@@ -561,7 +561,7 @@ def _best_option(options, want, pat, label=""):
         clean_want = re.sub(r"[^\w\s]", "", want).strip().lower()
         m = [(t, o) for t, o in options if clean_want in t.lower() or (len(clean_want) > 3 and clean_want in re.sub(r"[^\w\s]", "", t).lower())]
     if not m and OPTS:
-        r = OPTS.resolve(label, want, [t for t, _ in options])
+        r = OPTS.resolve(label, want, [t for t, _ in options], pattern=pat)
         m = [x for x in options if x[0] == r] if r else []
     if not m:
         return None

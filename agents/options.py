@@ -138,6 +138,14 @@ def resolve(label, want, options, pattern=None, semantic_ok=True):
         yl = _year_logic(core_question(label) or label, want)
         if yl is not None:
             return yes if yl else no
+        # Eligibility / export control questions where answer is a US Person / Citizen:
+        if re.search(r"export.*control|ITAR|EAR|protected individual|authorized to work|work authoriz|eligible to work", label, re.I):
+            if re.search(r"u\.?s\.?\s*person|u\.?s\.?\s*citizen|united states|citizen|yes", w, re.I):
+                return yes
+        # Willingness & internship intent questions:
+        if re.search(r"willing to (?:work|relocate|travel)|able to work|work from (?:our|the)?\s*(?:headquarters|office)|looking for (?:a\s+)?(?:summer\s+)?internship|seeking an?\s+(?:summer\s+)?internship", label, re.I):
+            if re.search(r"yes|summer|intern|full[- ]time", w, re.I):
+                return yes
         return None   # a fact like "Georgia" can't be turned into yes/no safely
     # 3. dates: "05/2028" -> "May/June 2028" (same year; the month breaks ties)
     y = re.search(r"(20\d\d)", w)

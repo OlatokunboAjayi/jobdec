@@ -115,7 +115,9 @@ def save_pinned_status_info(chat_id: int, message_id: int):
 
 
 async def ensure_pinned_live_status(context: ContextTypes.DEFAULT_TYPE, chat_id: int = None, force_repin: bool = False, header: str = None) -> int:
-    """Maintains a persistent, pinned live status view at the top of the chat banner."""
+    """Maintains ONE persistent, pinned live status view at the top of the chat banner.
+    Rule: there must NEVER be more than one control panel message in the chat.
+    When a new panel is posted, the old one is always deleted first."""
     target_chat = chat_id or AUTHORIZED_USER_ID
     if not target_chat:
         return 0
@@ -129,8 +131,8 @@ async def ensure_pinned_live_status(context: ContextTypes.DEFAULT_TYPE, chat_id:
     text = format_status_message(header=panel_header, metrics=m)
     kb = get_smart_keyboard(m)
 
-    # If already pinned and not force_repin, attempt silent in-place update
-    if saved_msg_id and saved_chat_id == target_chat and not force_repin:
+    # If already pinned, attempt silent in-place edit (even on force_repin, try edit first)
+    if saved_msg_id and saved_chat_id == target_chat:
         try:
             await context.bot.edit_message_text(
                 chat_id=target_chat,
@@ -139,14 +141,24 @@ async def ensure_pinned_live_status(context: ContextTypes.DEFAULT_TYPE, chat_id:
                 reply_markup=kb,
                 parse_mode=ParseMode.HTML
             )
+            if force_repin:
+                try:
+                    await context.bot.pin_chat_message(
+                        chat_id=target_chat,
+                        message_id=saved_msg_id,
+                        disable_notification=True
+                    )
+                except Exception:
+                    pass
             return saved_msg_id
         except Exception as e:
             err_str = str(e).lower()
             if "message is not modified" in err_str:
                 return saved_msg_id
-            # Message was deleted or unreachable, fall through to post new and pin
+            # Message was deleted or unreachable — delete stale reference and fall through
+            await safe_delete_message(context.bot, saved_chat_id, saved_msg_id)
 
-    # Otherwise post a fresh pinned control panel
+    # Post exactly one fresh pinned control panel (old one is gone by now)
     try:
         sent_msg = await context.bot.send_message(
             chat_id=target_chat,
@@ -1741,7 +1753,7 @@ async def clean_all_questions_action(context: ContextTypes.DEFAULT_TYPE, chat_id
 
     if trigger_msg_id:
         tracked_ids = set(msg_ids) | {mid for mid, _ in app_items}
-        for past_id in range(trigger_msg_id, max(1, trigger_msg_id - 75), -1):
+        for past_id in range(trigger_msg_id, max(1, trigger_msg_id - 150), -1):
             if past_id not in protected_ids:
                 if await safe_delete_message(context.bot, chat_id, past_id):
                     deleted_scan += 1
@@ -1897,14 +1909,21 @@ async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TY
         if data == "btn_status":
             if is_panel(query):
                 PANEL_HOLD["until"] = 0.0  # back on the panel: live refresh resumes
-            m = get_realtime_metrics()
-            text_out, kb = format_status_message(metrics=m), get_smart_keyboard(m)
+                m = get_realtime_metrics()
+                text_out, kb = format_status_message(metrics=m), get_smart_keyboard(m)
+                await safe_edit(query, text_out, reply_markup=kb)
+            else:
+                # Tapped on a secondary popup/menu message: delete it so it never duplicates the control panel
+                await safe_delete_message(context.bot, query.message.chat_id, query.message.message_id)
+                # And ensure the single active pinned panel at top is refreshed in-place
+                await ensure_pinned_live_status(context, chat_id=query.message.chat_id, force_repin=False)
+            return
         else:
             text_out, kb = {"btn_settings": get_settings_view, "btn_more": get_more_view,
                             "btn_target": get_target_customizer_panel}[data]()
             hold_panel_view(query)
-        await safe_edit(query, text_out, reply_markup=kb)
-        return
+            await safe_edit(query, text_out, reply_markup=kb)
+            return
 
     if data == "btn_close":
         await safe_delete_message(context.bot, query.message.chat_id, query.message.message_id)
@@ -2482,6 +2501,12 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await safe_reply(update.message, await stop_runner_and_report(), reply_markup=CLOSE_KB)
         await refresh_panel(context)
         return
+    if t_lower in ("status", "update", "/panel", "panel", "/status", "live control panel", "control panel", "live panel"):
+        # Always update the single active pinned control panel in-place! Never duplicate into chat body!
+        await ensure_pinned_live_status(context, chat_id=update.effective_chat.id, force_repin=False)
+        if update.message:
+            asyncio.create_task(_delete_after(context.bot, update.effective_chat.id, [update.message.message_id], 2.0))
+        return
     if t_lower in VIEW_WORDS:
         text_out, kb = VIEW_WORDS[t_lower]()
         await safe_reply(update.message, text_out, reply_markup=kb)
@@ -2714,7 +2739,6 @@ def _status_view():
 
 
 VIEW_WORDS = {
-    **dict.fromkeys(["status", "update", "/panel", "panel"], _status_view),
     **dict.fromkeys(["/settings", "settings"], get_settings_view),
     **dict.fromkeys(["/more", "more", "/menu", "menu"], get_more_view),
     **dict.fromkeys(["/recent", "recent"], lambda: (recent_text(), CLOSE_KB)),
